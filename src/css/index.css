@@ -1,0 +1,14 @@
+:root {
+  --primary-color: #107BF4;
+  --white-color: #f4f5f6;
+  --black-color: #0A0A0A;
+  --gray-color: #6B7280;
+  --button-border-radius: 999px;
+  --border-radius: 4px;
+}
+
+body {
+  background-color: var(--white-color);
+  color: var(--black-color);
+}
+
