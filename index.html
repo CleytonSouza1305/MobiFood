@@ -7,10 +7,12 @@
 
     <link rel="stylesheet" href="./src/css/global.css" />
     <link rel="stylesheet" href="./src/css/index.css" />
+    <link rel="stylesheet" href="./src/css/loader.css" />
   </head>
+
   <body>
     <main>
-      <form method="post">
+      <form method="post" id="login-form">
         <div class="title">
           <h1>Login</h1>
 
@@ -19,33 +21,46 @@
           </div>
         </div>
 
-        <div class="inputs">
+        <div class="inputs-login">
           <div class="input-content">
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
+            <input type="email" id="email" name="email" />
           </div>
 
           <div class="input-content">
             <label for="password">Senha:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              required
-              minlength="6"
-            />
+            <input type="password" id="password" name="password" />
           </div>
 
-          <div class="input-content">
-            <label for="remember">
-              <input type="checkbox" id="remember" name="remember" />
-              Lembrar-me
-            </label>
+          <div class="input-content checkbox-content">
+            <input type="checkbox" id="remember" name="remember" />
+            <label for="remember">Lembrar-me</label>
           </div>
         </div>
+
+        <p class="error-message"></p>
+        <p class="have-account">
+          Não tem uma conta? <a href="./src/pages/register.html">Registre-se</a>
+        </p>
         <button type="submit">Entrar</button>
       </form>
     </main>
+
+    <div class="loader-content display">
+      <div class="loader">
+      <div class="road"></div>
+      <div class="delivery">
+        <div class="moto">
+          <div class="wheel front"></div>
+          <div class="wheel back"></div>
+          <div class="body"></div>
+        </div>
+        <div class="box"></div>
+      </div>
+      <p class="loading-text">Carregando MobiFood...</p>
+    </div>
+    </div>
+
     <script type="module" src="./src/js/index.js"></script>
   </body>
 </html>
