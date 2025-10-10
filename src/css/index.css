@@ -26,6 +26,7 @@ main {
 
 main form {
   max-width: 400px;
+  max-height: 100vh;
   margin: 0 auto;
   padding: 20px;
   background-color: var(--white-color);
