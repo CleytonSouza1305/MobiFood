@@ -12,7 +12,7 @@
     <main>
       <form method="post" id="register-form">
         <div class="title">
-          <h1>Registre-se</h1>
+          <h1>Criar conta</h1>
 
           <div class="logo">
             <img src="../images/mobifood-logo.png" alt="Logo MobiFood" />
@@ -20,6 +20,12 @@
         </div>
 
         <div class="inputs-register">
+
+          <div class="input-content">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" />
+          </div>
+
           <div class="input-content">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" />
@@ -30,9 +36,22 @@
             <input type="password" id="password" name="password" />
           </div>
 
+          <div class="input-content">
+            <label for="phone">Telefone:</label>
+            <input type="tel" id="phone" name="phone" />
+          </div>
+
           <div class="input-content checkbox-content">
             <input type="checkbox" id="remember" name="remember" />
             <label for="remember">Lembrar-me</label>
+          </div>
+
+          <div class="input-content">
+            <label for="user">Usuário:</label>
+            <input type="radio" id="user" name="user" />
+
+            <label for="delivery">Entregador:</label>
+            <input type="radio" id="delivery" name="user" />
           </div>
         </div>
 
@@ -40,7 +59,7 @@
         <p class="have-account">
           Possui uma conta? <a href="../../index.html">Faça login</a>
         </p>
-        <button type="submit">Registrar</button>
+        <button type="submit">Criar conta</button>
       </form>
     </main>
     <script type="module" src="../js/index.js"></script>
