@@ -150,9 +150,19 @@ function startApp() {
         return;
       }
 
-      errorMessage.textContent = ''
+      errorMessage.textContent = "";
       phoneMask(phone.value);
     });
+
+    document.addEventListener("keydown", (k) => {
+        const key = k.key;
+        if (key === "Backspace") {
+          if (phone.value.length >= 2 && phone.value.length < 6) {
+            const value = phone.value.trim()
+            phone.value = value.slice(0, value.length);
+          }
+        }
+      });
   }
   const form = document.querySelector("form");
   form.addEventListener("submit", async (e) => {
