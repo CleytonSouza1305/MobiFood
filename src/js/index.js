@@ -34,8 +34,8 @@ async function me(token) {
 }
 
 async function loginRequest(email, password, rememberMe) {
-  const loader = document.getElementById('loader');
-  loader.classList.remove('display');
+  // const loader = document.getElementById('loader');
+  // loader.classList.remove('display');
 
   try {
     const errorMessage = document.querySelector('.error-message');
@@ -69,7 +69,7 @@ async function loginRequest(email, password, rememberMe) {
     console.error(error);
     return null;
   } finally {
-    loader.classList.add('display');
+    // loader.classList.add('display');
   }
 }
 
