@@ -1,6 +1,6 @@
 import { BASE_URL } from "./config.js";
 
-export async function validateToken() {
+async function validateToken() {
   const token =
     localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -26,15 +26,16 @@ async function me(token) {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (!response.ok) throw new Error("Failed to fetch user data");
+    if (!response.ok) return null;
     return await response.json();
   } catch (error) {
-    console.error(error);
     return null;
   }
 }
 
 async function loginRequest(email, password, rememberMe) {
+  // const loader = document.getElementById("loader");
+  // loader.classList.remove("display");
   // const loader = document.getElementById("loader");
   // loader.classList.remove("display");
 
@@ -65,24 +66,26 @@ async function loginRequest(email, password, rememberMe) {
       sessionStorage.setItem("token", data.token);
     }
 
-    window.location.href = "./src/pages/home.html";
+    if (
+      location.pathname.includes("index.html") ||
+      location.pathname === "/" ||
+      location.pathname === "/login"
+    ) {
+      window.location.href = "./src/pages/home.html";
+    } else {
+      window.location.href = "../pages/home.html";
+    }
   } catch (error) {
     console.error(error);
     return null;
   } finally {
-    // loader.classList.add('display');
+    // loader.classList.add("display");
   }
 }
 
-async function registerRequest(
-  name,
-  email,
-  password,
-  phone,
-  userType,
-  rememberMe
-) {
+async function registerRequest(data, rememberMe) {
   try {
+    console.log(data);
     const errorMessage = document.querySelector(".error-message");
     errorMessage.textContent = "";
 
@@ -91,7 +94,13 @@ async function registerRequest(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password, phone, role: userType }),
+      body: JSON.stringify({
+        username: data.name,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        role: data.userType,
+      }),
     });
 
     if (!response.ok) {
@@ -101,12 +110,11 @@ async function registerRequest(
       return;
     }
 
-    const data = await response.json();
-
-    // await loginRequest(rememberMe)
+    await loginRequest(data.email, data.password, rememberMe);
   } catch (error) {
     console.error(error);
     return null;
+  } finally {
   }
 }
 
@@ -155,14 +163,14 @@ function startApp() {
     });
 
     document.addEventListener("keydown", (k) => {
-        const key = k.key;
-        if (key === "Backspace") {
-          if (phone.value.length >= 2 && phone.value.length < 6) {
-            const value = phone.value.trim()
-            phone.value = value.slice(0, value.length);
-          }
+      const key = k.key;
+      if (key === "Backspace") {
+        if (phone.value.length >= 2 && phone.value.length < 6) {
+          const value = phone.value.trim();
+          phone.value = value.slice(0, value.length);
         }
-      });
+      }
+    });
   }
   const form = document.querySelector("form");
   form.addEventListener("submit", async (e) => {
@@ -189,7 +197,15 @@ function startApp() {
           return;
         }
 
-        await registerRequest(checkbox);
+        const data = {
+          name,
+          email,
+          password,
+          phone: phone.value,
+          userType: userType.value,
+        };
+
+        await registerRequest(data, checkbox);
       }
     }
   });

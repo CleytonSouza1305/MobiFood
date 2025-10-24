@@ -1,13 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home | MobiFood</title>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | MobiFood</title>
 
-  <link rel="stylesheet" href="../css/global.css" />
-</head>
-<body>
-  <h1>Home</h1>
-</body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/home.css" />
+  </head>
+  <body>
+    <main>
+      <div class="logo-container">
+        <div class="logo-mobile">
+          <img src="../images/mobifood-logo.png" alt="Logo do app" />
+        </div>
+      </div>
+      <header>
+        <div class="logo">
+          <img src="../images/mobifood-logo.png" alt="Logo do app" />
+        </div>
+
+        <div class="menu">
+          <i class="fa-solid fa-bars"></i>
+        </div>
+        <div class="aside">
+          <aside>
+            <ul>
+              <li class="list-aside-item">
+                <button><i class="fa-solid fa-house"></i> Início</button>
+              </li>
+              <li class="list-aside-item">
+                <button>
+                  <i class="fa-solid fa-bag-shopping"></i> Meus pedidos
+                </button>
+              </li>
+              <li class="list-aside-item">
+                <button>
+                  <i class="fa-solid fa-credit-card"></i>
+                  Método de pagamento
+                </button>
+              </li>
+
+              <li class="list-aside-item">
+                <button>
+                  <i class="fa-solid fa-ticket"></i>
+                  Cupom
+                </button>
+              </li>
+
+              <li class="list-aside-item">
+                <button id="end-session">
+                  <i class="fa-solid fa-right-from-bracket"></i> Sair
+                </button>
+              </li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="address-content">
+          <div class="add-address-btn" id="add-new-address-btn">
+            Adicionar endereço <i class="fa-solid fa-plus"></i>
+          </div>
+
+          <div class="address-container"></div>
+        </div>
+        <div class="user-profile">
+          <div class="profile">
+            <i class="fa-solid fa-user"></i>
+          </div>
+        </div>
+      </header>
+    </main>
+
+    <div class="modal" id="addressModal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+        <h2>Adicionar Endereço</h2>
+
+        <form id="addressForm">
+          <div class="form-group">
+            <label for="street">Rua</label>
+            <input
+              type="text"
+              id="street"
+              name="street"
+              required
+              placeholder="Ex: Rua das Flores"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="number">Número</label>
+            <input
+              type="text"
+              id="number"
+              name="number"
+              required
+              placeholder="Ex: 123"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="city">Cidade</label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              required
+              placeholder="Ex: São Paulo"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="state">Estado (UF)</label>
+            <input
+              type="text"
+              id="state"
+              name="state"
+              maxlength="2"
+              required
+              placeholder="Ex: SP"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="role">Tipo de Endereço</label>
+            <select id="role" name="role" required>
+              <option value="residencial">Residencial</option>
+              <option value="comercial">Comercial</option>
+            </select>
+          </div>
+
+          <div class="form-group checkbox">
+            <label>
+              <input type="checkbox" id="isActive" name="isActive" />
+              Definir como endereço ativo
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn" id="cancelModalBtn">
+              Cancelar
+            </button>
+            <button type="submit" class="save-btn">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer class="cart-footer">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span class="cart-count" id="cart-count">(0)</span>
+    </footer>
+
+    <script type="module" src="../js/home.js"></script>
+  </body>
 </html>
