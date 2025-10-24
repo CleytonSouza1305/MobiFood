@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+:root {
+  --primary-color: hsl(212, 91%, 51%);
+  --secondary-color: hsl(212, 91%, 61%);
+  --white-color: #f4f5f6;
+  --black-color: #0a0a0a;
+  --gray-color: #6b7280;
+  --button-border-radius: 999px;
+  --border-radius: 6px;
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -11,6 +21,7 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
+  background-color: transparent;
 }
 
 a {
