@@ -1,5 +1,15 @@
 import { BASE_URL } from "./config.js";
 
+const loader = document.getElementById("loader");
+
+function showLoader() {
+  loader.classList.remove("hidden");
+}
+
+function hideLoader() {
+  loader.classList.add("hidden");
+}
+
 async function validateToken() {
   const token =
     localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -19,6 +29,8 @@ async function validateToken() {
 }
 
 async function me(token) {
+  showLoader()
+
   try {
     const response = await fetch(`${BASE_URL}/auth/users/me`, {
       method: "GET",
@@ -30,14 +42,13 @@ async function me(token) {
     return await response.json();
   } catch (error) {
     return null;
+  } finally {
+    hideLoader()
   }
 }
 
 async function loginRequest(email, password, rememberMe) {
-  // const loader = document.getElementById("loader");
-  // loader.classList.remove("display");
-  // const loader = document.getElementById("loader");
-  // loader.classList.remove("display");
+  showLoader()
 
   try {
     const errorMessage = document.querySelector(".error-message");
@@ -79,11 +90,12 @@ async function loginRequest(email, password, rememberMe) {
     console.error(error);
     return null;
   } finally {
-    // loader.classList.add("display");
+   hideLoader()
   }
 }
 
 async function registerRequest(data, rememberMe) {
+  showLoader()
   try {
     console.log(data);
     const errorMessage = document.querySelector(".error-message");
@@ -115,6 +127,7 @@ async function registerRequest(data, rememberMe) {
     console.error(error);
     return null;
   } finally {
+    hideLoader()
   }
 }
 
