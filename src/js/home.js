@@ -1,8 +1,33 @@
 import { BASE_URL } from "./config.js";
 
+const loader = document.getElementById("loader");
+
+function showLoader() {
+  loader.classList.remove("hidden");
+}
+
+function hideLoader() {
+  loader.classList.add("hidden");
+}
+
+const modal = document.getElementById("confirm-modal");
+const cancelBtn = document.querySelector(".modal-cancel-btn");
+const confirmBtn = document.querySelector(".modal-confirm-btn");
+
+function openModal(msg) {
+  const message = document.getElementById("message");
+  message.innerText = msg;
+  modal.classList.add("active");
+}
+
+function closeModal() {
+  modal.classList.remove("active");
+}
+
+cancelBtn.addEventListener("click", closeModal);
+
 function switchUserTheme(theme) {
   const root = document.querySelector(":root");
-
   if (theme === "light") {
     root.style.setProperty("--white-color", "#f4f5f6");
     root.style.setProperty("--black-color", "#0a0a0a");
@@ -16,10 +41,195 @@ function switchUserTheme(theme) {
   }
 }
 
-function openAddressModal() {
-  const modal = document.getElementById('addressModal')
+async function saveNewAddress(address, userId, token) {
+  showLoader();
+
+  try {
+    const response = await fetch(`${BASE_URL}/auth/users/${userId}/address`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        street: address.street,
+        city: address.city,
+        number: +address.number,
+        state: address.state,
+        role: address.role,
+        isActive: address.isActive,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    location.reload();
+  } catch (error) {
+    console.error(`Erro ao criar endereço, motivo: ${error.message}`);
+  } finally {
+    hideLoader();
+  }
+}
+
+async function deleteAddress(addressId, userId, token) {
+  showLoader();
+  try {
+    const response = await fetch(
+      `${BASE_URL}/auth/users/${userId}/address/${addressId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    location.reload();
+  } catch (error) {
+    console.error(`Erro ao deletar endereço, motivo: ${error.message}`);
+  } finally {
+    hideLoader();
+  }
+}
+
+async function addressById(token, userId, addressId) {
+  showLoader();
+  try {
+    const response = await fetch(
+      `${BASE_URL}/auth/users/${userId}/address/${addressId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`Erro ao buscar endereço, motivo: ${error.message}`);
+  } finally {
+    hideLoader();
+  }
+}
+
+async function updateAddress(token, userId, addressId, updatedData) {
+  showLoader();
+  try {
+    const response = await fetch(
+      `${BASE_URL}/auth/users/${userId}/address/${addressId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedData),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    location.reload();
+  } catch (error) {
+    console.error(`Erro ao atualizar endereço, motivo: ${error.message}`);
+  } finally {
+    hideLoader();
+  }
+}
+
+async function openAddressModal(token, userId, addressId) {
+  const street = document.getElementById("street");
+  const number = document.getElementById("number");
+  const city = document.getElementById("city");
+  const state = document.getElementById("state");
+  const role = document.getElementById("role");
+  const isActive = document.getElementById("isActive");
+
+  street.value = "";
+  number.value = "";
+  city.value = "";
+  state.value = "";
+  role.value = "Casa";
+
+  const modal = document.getElementById("addressModal");
   if (modal) {
-    modal.style.display = 'block'
+    modal.style.display = "flex";
+
+    document.querySelectorAll(".close-btn-modal").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+    });
+
+    modal.addEventListener("click", (ev) => {
+      if (ev.target.classList.contains("modal")) {
+        modal.style.display = "none";
+      }
+    });
+
+    const form = document.getElementById("addressForm");
+
+    if (addressId) {
+      const address = await addressById(token, userId, addressId);
+
+      street.value = address.street;
+      number.value = address.number;
+      city.value = address.city;
+      state.value = address.state;
+      role.value = address.role;
+
+      form.onsubmit = (ev) => {
+        ev.preventDefault();
+
+        const updatedData = {
+          street: street.value,
+          number: +number.value,
+          city: city.value,
+          state: state.value,
+          role: role.value,
+          isActive: isActive.checked,
+        };
+
+        openModal("Deseja atualizar esse endereço?");
+        confirmBtn.addEventListener("click", () => {
+          updateAddress(token, userId, addressId, updatedData);
+        })
+      };
+    } else {
+      form.onsubmit = (ev) => {
+        ev.preventDefault();
+
+        const address = {
+          street: street.value,
+          number: number.value,
+          city: city.value,
+          state: state.value,
+          role: role.value,
+          isActive: isActive.checked,
+        };
+
+        saveNewAddress(address, userId, token);
+      };
+    }
   }
 }
 
@@ -38,11 +248,8 @@ function insertUserData(data, token) {
     const ul = document.createElement("ul");
     ul.classList.add("address-ul");
 
-    const allAddress = addressess.filter((ad) => ad.isActive !== true);
-    if (allAddress && allAddress.length > 0) {
-      allAddress.forEach((ad) => {
-        console.log(ad);
-
+    addressess.forEach((ad) => {
+      if (!ad.isActive) {
         let iconROle;
 
         switch (ad.role) {
@@ -62,29 +269,47 @@ function insertUserData(data, token) {
             iconROle = `<i class="fa-solid fa-location-dot"></i>`;
         }
 
+        const div = document.createElement("div");
+        div.classList.add("hover-div");
+
         const li = document.createElement("li");
 
         li.classList = "address-list-item";
-        li.dataset.address = ad.id;
 
         li.innerHTML = `
       <button class="button-address">
         ${iconROle} ${ad.street}, ${ad.number}, ${ad.city} - ${ad.state} 
       </button>`;
-        ul.appendChild(li);
-      });
 
-      if (addressess.length < 5) {
-        const btn = document.createElement('li')
-        btn.innerHTML = '<button>Adicionar endereço <i class="fa-solid fa-plus"></i></button>'
-        btn.classList.add('add-address-btn', 'address-list-item')
-        ul.append(btn)
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.innerHTML = `<i class="fa-solid fa-trash"></i>`;
+        deleteBtn.dataset.address = ad.id;
+
+        const updateBtn = document.createElement("button");
+        updateBtn.classList.add("update-btn");
+        updateBtn.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
+        updateBtn.dataset.address = ad.id;
+
+        div.append(updateBtn, li, deleteBtn);
+        ul.appendChild(div);
       }
+    });
 
-      containerOfAddress.appendChild(ul);
+    if (addressess.length < 5) {
+      const btn = document.createElement("li");
+      btn.innerHTML =
+        '<button>Adicionar endereço <i class="fa-solid fa-plus"></i></button>';
+      btn.classList.add("add-address-btn-modal", "address-list-item");
+      ul.append(btn);
     }
 
-    if (!containerOfAddress.classList.contains("container-open") && allAddress.length > 0) {
+    containerOfAddress.appendChild(ul);
+
+    if (
+      !containerOfAddress.classList.contains("container-open") &&
+      addressess.length > 0
+    ) {
       addressContent.addEventListener("click", (ev) => {
         if (
           ev.target.classList.contains("address-content") ||
@@ -95,8 +320,40 @@ function insertUserData(data, token) {
         }
       });
     }
+
+    const btnAddAddress = document.querySelector(".add-address-btn-modal");
+    if (btnAddAddress) {
+      btnAddAddress.addEventListener("click", () => {
+        openAddressModal(token, data.id);
+      });
+    }
+
+    const deleteAddressBtn = document.querySelectorAll(".delete-btn");
+    deleteAddressBtn.forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        const addressId = ev.currentTarget.dataset.address;
+
+        openModal("Deseja deletar endereço?");
+
+        confirmBtn.addEventListener("click", () => {
+          deleteAddress(addressId, data.id, token);
+          closeModal();
+        });
+      });
+    });
+
+    const updateAddressBtn = document.querySelectorAll(".update-btn");
+    updateAddressBtn.forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        const addressId = ev.currentTarget.dataset.address;
+
+        openAddressModal(token, data.id, addressId);
+      });
+    });
   } else {
-    addressContent.addEventListener('click', openAddressModal)
+    addressContent.addEventListener("click", () => {
+      openAddressModal(token, data.id);
+    });
   }
 }
 
@@ -108,6 +365,7 @@ function startApp(user, token) {
 }
 
 async function me(token) {
+  showLoader();
   try {
     const response = await fetch(`${BASE_URL}/auth/users/me`, {
       method: "GET",
@@ -120,6 +378,8 @@ async function me(token) {
   } catch (error) {
     console.error(error);
     return null;
+  } finally {
+    hideLoader();
   }
 }
 
