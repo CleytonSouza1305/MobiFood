@@ -465,8 +465,15 @@ footer {
     display: none;
   }
 
-  .aside {
-    display: none;
+   .aside {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+
+  .aside.open {
+    transform: translateX(0);
+    transform: translateY(60px);
+    opacity: 1;
   }
 
   .menu {

@@ -358,11 +358,32 @@ function insertUserData(data, token) {
   }
 }
 
+function openMobileMenu() {
+  const aside = document.querySelector('.aside');
+  const menu = document.querySelector('.menu');
+
+  menu.addEventListener('click', () => {
+    aside.classList.toggle('open');
+
+    const icon = menu.querySelector('i')
+
+    if (icon.classList.contains('fa-bars')) {
+      icon.classList.remove('fa-bars');
+      icon.classList.add('fa-xmark');
+    } else {
+      icon.classList.remove('fa-xmark');
+      icon.classList.add('fa-bars');
+    }
+  });
+}
+
+
 function startApp(user, token) {
   console.log(user);
 
   switchUserTheme(user.favoriteTheme);
   insertUserData(user, token);
+  openMobileMenu()
 }
 
 async function me(token) {
