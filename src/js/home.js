@@ -242,7 +242,7 @@ function insertUserData(data, token) {
 
     const activeAddress = addressess.filter((ad) => ad.isActive === true);
     const address = activeAddress[0];
-    text.innerHTML = `<p>${address.street}, ${address.number}, ${address.city} - ${address.state}</p>`;
+    text.innerHTML = `<p class="address-p">${address.street}, ${address.number}, ${address.city} - ${address.state}</p>`;
 
     const containerOfAddress = document.querySelector(".address-container");
     const ul = document.createElement("ul");
@@ -314,7 +314,8 @@ function insertUserData(data, token) {
         if (
           ev.target.classList.contains("address-content") ||
           ev.target.classList.contains("address-container") ||
-          ev.target.classList.contains("address-ul")
+          ev.target.classList.contains("address-ul") || 
+          ev.target.classList.contains('address-p')
         ) {
           containerOfAddress.classList.toggle("container-open");
         }
