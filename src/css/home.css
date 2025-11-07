@@ -3,15 +3,17 @@
   --secondary-color: hsl(212, 91%, 61%);
   --white-color: #f4f5f6;
   --secunday-white-color: #bcc2c8;
+  --third-white-color: #dee4ea;
   --black-color: hsl(0, 0%, 0%);
   --secunday-black-color: hsl(0, 0%, 24%);
+  --third-black-color: #1e1f20ff;
   --gray-color: #6b7280;
   --button-border-radius: 999px;
   --border-radius: 6px;
 }
 
 body {
-  height: auto;
+  height: 100vh;
   background-color: var(--white-color);
   color: var(--black-color);
   display: flex;
@@ -22,7 +24,6 @@ body {
 main {
   width: 100%;
   max-width: 1200px;
-  background-color: var(--white-color-color);
   border-radius: 16px;
   padding: 20px;
 }
@@ -438,20 +439,169 @@ ul .address-list-item button {
   background: #c72c3b;
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  padding: 0.7rem;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  background-color: var(--primary-color);
+section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+section .all-restaurants {
+  color: var(--black-color);
+  margin-left: 200px;
   width: 100%;
+  height: 100vh;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 700px;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+section .all-restaurants::-webkit-scrollbar {
+  display: none;
+}
+
+section .all-restaurants h2.search-action {
+  cursor: pointer;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  font-size: 1.6rem;
+  color: var(--black-color);
+}
+
+.header-restaurants {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.header-restaurants form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-restaurants input[type="search"] {
+  width: 90%;
+  max-width: 500px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  border: 2px solid var(--secunday-black-color);
+  border-radius: var(--button-border-radius);
+  background-color: transparent;
+  font-size: 1rem;
+  color: var(--black-color);
+  transition: all 0.3s ease;
+}
+
+.header-restaurants input[type="search"]::placeholder {
+  color: #a3a3a3;
+  font-size: 0.95rem;
+}
+
+.header-restaurants input[type="search"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 6px var(--primary-color);
+}
+
+.restaurants {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+.restaurant-card {
   cursor: pointer;
-  color: #fff;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--third-white-color);
+  border-radius: 6px;
+  transition: transform 0.2s ease;
+}
+
+.restaurant-card:hover {
+  transform: translateY(-2px);
+}
+
+.restaurant-card .image-logo {
+  width: 70px;
+  height: 70px;
+  box-shadow: 0 0 3px var(--black-color);
+  border-radius: 50%;
+  padding: 0.2rem;
+}
+
+.restaurant-card .image-logo img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.restaurant-card .restaurant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: var(--secunday-black-color);
+  font-weight: 500;
+}
+
+.restaurant-card .restaurant-info .restaurant-name {
+  color: var(--black-color);
+  text-align: center;
+  font-weight: 600;
+}
+
+.restaurant-card .restaurant-info .data-restaurant {
+  display: flex;
+  gap: 6rem;
+}
+
+.restaurant-card .rigth-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.fav-icon i {
+  color: rgb(233, 117, 136);
+  font-size: 1.7rem;
+}
+
+.avaliation {
+  font-size: 1.2rem;
+}
+
+.avaliation i {
+  font-size: 1.5rem;
+  margin-left: 0.5rem;
+}
+
+span.isOpen,
+span.isClosed {
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  color: #f3f4f5;
+  font-weight: 500;
+}
+
+span.isOpen {
+  background-color: rgb(65, 159, 39);
+}
+
+span.isClosed {
+  background-color: rgb(198, 48, 48);
 }
 
 @media (max-width: 420px) {
@@ -495,5 +645,29 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  section .all-restaurants {
+    margin-left: 0;
+  }
+
+  .restaurant-card {
+    gap: 1rem;
+  }
+
+  .restaurant-card .rigth-data {
+    display: none;
+  }
+
+  .restaurant-local {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+  }
+
+  .restaurant-card .restaurant-info .data-restaurant {
+    gap: 0;
+    justify-content: space-between;
   }
 }

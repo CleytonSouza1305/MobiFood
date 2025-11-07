@@ -33,11 +33,15 @@ function switchUserTheme(theme) {
     root.style.setProperty("--black-color", "#0a0a0a");
     root.style.setProperty("--secunday-white-color", "#bcc2c8ff");
     root.style.setProperty("--secunday-black-color", "#000000ff");
+    root.style.setProperty("--third-white-color", "#dee4ea");
+    root.style.setProperty("--third-black-color", "#1e1f20ff");
   } else {
     root.style.setProperty("--white-color", "#0a0a0a");
     root.style.setProperty("--black-color", "#f4f5f6");
     root.style.setProperty("--secunday-white-color", "#000000ff");
     root.style.setProperty("--secunday-black-color", "#bcc2c8ff");
+    root.style.setProperty("--third-white-color", "#1e1f20ff");
+    root.style.setProperty("--third-black-color", "#dee4ea");
   }
 }
 
@@ -212,7 +216,7 @@ async function openAddressModal(token, userId, addressId) {
         openModal("Deseja atualizar esse endereço?");
         confirmBtn.addEventListener("click", () => {
           updateAddress(token, userId, addressId, updatedData);
-        })
+        });
       };
     } else {
       form.onsubmit = (ev) => {
@@ -314,8 +318,8 @@ function insertUserData(data, token) {
         if (
           ev.target.classList.contains("address-content") ||
           ev.target.classList.contains("address-container") ||
-          ev.target.classList.contains("address-ul") || 
-          ev.target.classList.contains('address-p')
+          ev.target.classList.contains("address-ul") ||
+          ev.target.classList.contains("address-p")
         ) {
           containerOfAddress.classList.toggle("container-open");
         }
@@ -359,31 +363,154 @@ function insertUserData(data, token) {
 }
 
 function openMobileMenu() {
-  const aside = document.querySelector('.aside');
-  const menu = document.querySelector('.menu');
+  const aside = document.querySelector(".aside");
+  const menu = document.querySelector(".menu");
 
-  menu.addEventListener('click', () => {
-    aside.classList.toggle('open');
+  menu.addEventListener("click", () => {
+    aside.classList.toggle("open");
 
-    const icon = menu.querySelector('i')
+    const icon = menu.querySelector("i");
 
-    if (icon.classList.contains('fa-bars')) {
-      icon.classList.remove('fa-bars');
-      icon.classList.add('fa-xmark');
+    if (icon.classList.contains("fa-bars")) {
+      icon.classList.remove("fa-bars");
+      icon.classList.add("fa-xmark");
     } else {
-      icon.classList.remove('fa-xmark');
-      icon.classList.add('fa-bars');
+      icon.classList.remove("fa-xmark");
+      icon.classList.add("fa-bars");
     }
   });
 }
 
+async function getRestaurant(token, params = null) {
+  try {
+    const url = params
+      ? `${BASE_URL}/api/restaurants/${params}`
+      : (url = `${BASE_URL}/api/restaurants`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-function startApp(user, token) {
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.log("Erro ao buscar restaurant, motivo: ", error.message);
+    return [];
+  }
+}
+
+function insertRestaurantData(data, contentName, append) {
+  console.log(data);
+  const restaurantDiv = document.querySelector(`.restaurants-div-dad`);
+
+  if (!append) {
+    if (restaurantDiv) restaurantDiv.innerHTML = "";
+  }
+
+  const contentRestaurants = document.createElement("div");
+  contentRestaurants.classList.add("content-restaurants");
+
+  const contentTitle = document.createElement("h2");
+  contentTitle.classList.add("search-action");
+
+  const contentNameVariable = contentName
+    ? `${contentName} <i class="fa-solid fa-chevron-right"></i>`
+    : `MobiFood recomenda <i class="fa-solid fa-chevron-right"></i>`;
+
+  contentTitle.innerHTML = contentNameVariable;
+
+  const restaurants = document.createElement("div");
+  restaurants.classList.add("restaurants");
+
+  data.forEach((restaurant) => {
+    const card = document.createElement("div");
+    card.classList.add("restaurant-card");
+
+    const openHour = parseInt(restaurant.openAt.split(":")[0]);
+    const closeHour = parseInt(restaurant.closeAt.split(":")[0]);
+    const currentHour = new Date().getHours();
+
+    card.innerHTML = `
+      <div class="restaurant-logo">
+        ${
+          restaurant.logoUrl
+            ? `<img src="${restaurant.logoUrl}" alt="${restaurant.name}">`
+            : `<div class="no-logo">Sem imagem</div>`
+        }
+      </div>
+      <div class="restaurant-info">
+        <h2 class="restaurant-title">
+          ${restaurant.name ? restaurant.name : "Nenhum nome disponível"}
+        </h2>
+
+        <p class="restaurant-address">
+          ${restaurant.address ? restaurant.address : "Endereço inválido"}
+        </p>
+
+        <div class="hours-content">
+          <span>
+            ${
+              restaurant.openAt && restaurant.closeAt
+                ? `${restaurant.openAt} - ${restaurant.closeAt}`
+                : "Nenhum horário disponível"
+            }
+          </span>
+
+          ${
+            currentHour >= openHour && currentHour < closeHour
+              ? '<span class="isOpen">Aberto</span>'
+              : '<span class="isClosed">Fechado</span>'
+          }
+        </div>
+      </div>
+    `;
+
+    restaurants.appendChild(card);
+  });
+
+  contentRestaurants.append(contentTitle, restaurants);
+  restaurantDiv.appendChild(contentRestaurants);
+}
+
+async function createContentRestaurant(token) {
+  const bestRated = await getRestaurant(token, "?pageSize=5");
+  insertRestaurantData(bestRated.data, "Melhor avaliado");
+}
+
+function formatCategory(category) {
+  const map = {
+    FAST_FOOD: "Fast Food",
+    ITALIAN: "Italiana",
+    JAPANESE: "Japonesa",
+    CHINESE: "Chinesa",
+    MEXICAN: "Mexicana",
+    VEGETARIAN: "Vegetariana",
+    PIZZA: "Pizzaria",
+    BURGER: "Hamburgueria",
+    SEAFOOD: "Frutos do Mar",
+    BAKERY: "Padaria",
+    COFFEE_SHOP: "Cafeteria",
+    DESSERT: "Sobremesas",
+    OTHERS: "Outros",
+  };
+
+  return map[category] || category;
+}
+
+async function startApp(user, token) {
   console.log(user);
 
   switchUserTheme(user.favoriteTheme);
   insertUserData(user, token);
-  openMobileMenu()
+  openMobileMenu();
+  createContentRestaurant(token);
 }
 
 async function me(token) {
