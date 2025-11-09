@@ -421,8 +421,8 @@ function insertRestaurantData(data, contentName, append) {
   contentTitle.classList.add("search-action");
 
   const contentNameVariable = contentName
-    ? `${contentName} <i class="fa-solid fa-chevron-right"></i>`
-    : `MobiFood recomenda <i class="fa-solid fa-chevron-right"></i>`;
+    ? `${contentName}<i class="fa-solid fa-chevron-right"></i>`
+    : `MobiFood recomenda<i class="fa-solid fa-chevron-right"></i>`;
 
   contentTitle.innerHTML = contentNameVariable;
 
@@ -432,6 +432,7 @@ function insertRestaurantData(data, contentName, append) {
   data.forEach((restaurant) => {
     const card = document.createElement("div");
     card.classList.add("restaurant-card");
+    card.dataset.restaurantId = restaurant.id
 
     const openHour = parseInt(restaurant.openAt.split(":")[0]);
     const closeHour = parseInt(restaurant.closeAt.split(":")[0]);
@@ -451,7 +452,7 @@ function insertRestaurantData(data, contentName, append) {
         </h2>
 
         <p class="restaurant-address">
-          ${restaurant.address ? restaurant.address : "Endereço inválido"}
+          ${restaurant.local ? restaurant.local : "Endereço inválido"}
         </p>
 
         <div class="hours-content">
@@ -469,6 +470,14 @@ function insertRestaurantData(data, contentName, append) {
               : '<span class="isClosed">Fechado</span>'
           }
         </div>
+
+        <div class="category-content">
+          ${
+            restaurant.category
+              ? `<span>• ${formatCategory(restaurant.category)}</span>`
+              : "<span>• Outros</span>"
+          }
+        </div>
       </div>
     `;
 
@@ -482,6 +491,84 @@ function insertRestaurantData(data, contentName, append) {
 async function createContentRestaurant(token) {
   const bestRated = await getRestaurant(token, "?pageSize=5");
   insertRestaurantData(bestRated.data, "Melhor avaliado");
+
+  const categories = [
+    {
+      category: "FAST_FOOD",
+      ptCategory: "Fast Food",
+      title: "Clássicos do Fast Food",
+    },
+    { category: "ITALIAN", ptCategory: "Italiana", title: "Sabores da Itália" },
+    {
+      category: "JAPANESE",
+      ptCategory: "Japonesa",
+      title: "Delícias do Japão",
+    },
+    { category: "CHINESE", ptCategory: "Chinesa", title: "Sabor da China" },
+    {
+      category: "MEXICAN",
+      ptCategory: "Mexicana",
+      title: "Autêntica Comida Mexicana",
+    },
+    {
+      category: "VEGETARIAN",
+      ptCategory: "Vegetariana",
+      title: "Opções Saudáveis e Vegetarianas",
+    },
+    { category: "PIZZA", ptCategory: "Pizzaria", title: "As Melhores Pizzas" },
+    {
+      category: "BURGER",
+      ptCategory: "Hamburgueria",
+      title: "Os Melhores Hambúrgueres",
+    },
+    { category: "SEAFOOD", ptCategory: "Frutos do Mar", title: "Sabor do Mar" },
+    { category: "BAKERY", ptCategory: "Padaria", title: "Delícias de Padaria" },
+    {
+      category: "COFFEE_SHOP",
+      ptCategory: "Cafeteria",
+      title: "Melhores Cafés e Doces",
+    },
+    {
+      category: "DESSERT",
+      ptCategory: "Sobremesas",
+      title: "Doces e Sobremesas Irresistíveis",
+    },
+  ];
+
+  
+  let secondContent = [{}]
+  let randomDt;
+
+  do {
+    randomDt = categories[Math.floor(Math.random() * categories.length)];
+
+    secondContent = await getRestaurant(
+    token,
+    `?pageSize=5&category=${randomDt.category}`
+  );
+  } while (secondContent.data.length < 1)
+  
+  insertRestaurantData(
+    secondContent.data,
+    `${randomDt.title}`,
+    true
+  );
+
+  let thirdContent = { data: [] };
+  let secondCategory = randomDt.category;
+  let randomThird;
+
+  do {
+    randomThird = categories[Math.floor(Math.random() * categories.length)];
+    thirdContent = await getRestaurant(
+      token,
+      `?pageSize=5&category=${randomThird.category}`
+    );
+  } while (
+    (thirdContent.data.length < 1 || randomThird.category === secondCategory)
+  );
+
+  insertRestaurantData(thirdContent.data, randomThird.title, true);
 }
 
 function formatCategory(category) {
