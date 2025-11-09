@@ -406,6 +406,31 @@ async function getRestaurant(token, params = null) {
   }
 }
 
+async function restaurantById(token, restaurantId) {
+  showLoader()
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/restaurants/${restaurantId}`, {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      }
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message)
+    }
+
+    return data
+  } catch (error) {
+    console.log(`Erro ao buscar restaurante, motivo: ${error.message}`)
+  } finally {
+    hideLoader()
+  }
+}
+
 function insertRestaurantData(data, contentName, append) {
   const restaurantDiv = document.querySelector(`.restaurants-div-dad`);
 
