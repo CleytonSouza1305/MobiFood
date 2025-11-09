@@ -407,7 +407,6 @@ async function getRestaurant(token, params = null) {
 }
 
 function insertRestaurantData(data, contentName, append) {
-  console.log(data);
   const restaurantDiv = document.querySelector(`.restaurants-div-dad`);
 
   if (!append) {
@@ -432,7 +431,7 @@ function insertRestaurantData(data, contentName, append) {
   data.forEach((restaurant) => {
     const card = document.createElement("div");
     card.classList.add("restaurant-card");
-    card.dataset.restaurantId = restaurant.id
+    card.dataset.restaurantId = restaurant.id;
 
     const openHour = parseInt(restaurant.openAt.split(":")[0]);
     const closeHour = parseInt(restaurant.closeAt.split(":")[0]);
@@ -463,7 +462,7 @@ function insertRestaurantData(data, contentName, append) {
                 : "Nenhum horário disponível"
             }
           </span>
-
+    
           ${
             currentHour >= openHour && currentHour < closeHour
               ? '<span class="isOpen">Aberto</span>'
@@ -535,24 +534,19 @@ async function createContentRestaurant(token) {
     },
   ];
 
-  
-  let secondContent = [{}]
+  let secondContent = [{}];
   let randomDt;
 
   do {
     randomDt = categories[Math.floor(Math.random() * categories.length)];
 
     secondContent = await getRestaurant(
-    token,
-    `?pageSize=5&category=${randomDt.category}`
-  );
-  } while (secondContent.data.length < 1)
-  
-  insertRestaurantData(
-    secondContent.data,
-    `${randomDt.title}`,
-    true
-  );
+      token,
+      `?pageSize=5&category=${randomDt.category}`
+    );
+  } while (secondContent.data.length < 1);
+
+  insertRestaurantData(secondContent.data, `${randomDt.title}`, true);
 
   let thirdContent = { data: [] };
   let secondCategory = randomDt.category;
@@ -565,7 +559,8 @@ async function createContentRestaurant(token) {
       `?pageSize=5&category=${randomThird.category}`
     );
   } while (
-    (thirdContent.data.length < 1 || randomThird.category === secondCategory)
+    thirdContent.data.length < 1 ||
+    randomThird.category === secondCategory
   );
 
   insertRestaurantData(thirdContent.data, randomThird.title, true);
@@ -598,6 +593,34 @@ async function startApp(user, token) {
   insertUserData(user, token);
   openMobileMenu();
   createContentRestaurant(token);
+
+  const searchInput = document.getElementById("query");
+  let searchTimeout;
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+
+    const query = searchInput.value.trim();
+
+    if (query.length < 1) {
+      createContentRestaurant(token);
+      return;
+    }
+
+    searchTimeout = setTimeout(async () => {
+      const restaurant = await getRestaurant(
+        token,
+        `?pageSize=10&name=${query}`
+      );
+      const data = restaurant.data;
+
+      if (data && data.length > 0) {
+        insertRestaurantData(data, `Resultado para "${query}"`);
+      } else {
+        createContentRestaurant(token);
+      }
+    }, 1500);
+  });
 }
 
 async function me(token) {
