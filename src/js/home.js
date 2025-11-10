@@ -407,27 +407,30 @@ async function getRestaurant(token, params = null) {
 }
 
 async function restaurantById(token, restaurantId) {
-  showLoader()
+  showLoader();
 
   try {
-    const response = await fetch(`${BASE_URL}/api/restaurants/${restaurantId}`, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      `${BASE_URL}/api/restaurants/${restaurantId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
+    );
 
-    const data = await response.json()
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message);
     }
 
-    return data
+    return data;
   } catch (error) {
-    console.log(`Erro ao buscar restaurante, motivo: ${error.message}`)
+    console.log(`Erro ao buscar restaurante, motivo: ${error.message}`);
   } finally {
-    hideLoader()
+    hideLoader();
   }
 }
 
@@ -591,6 +594,18 @@ async function createContentRestaurant(token) {
   insertRestaurantData(thirdContent.data, randomThird.title, true);
 }
 
+async function getDataRestaurantCard(token) {
+  const cards = document.querySelectorAll(".restaurant-card");
+  cards.forEach((card) => {
+    card.addEventListener("click", async (ev) => {
+      const restaurantId = ev.currentTarget.dataset.restaurantId;
+
+      const restaurantDt = await restaurantById(token, Number(restaurantId))
+      console.log(restaurantDt)
+    });
+  });
+}
+
 function formatCategory(category) {
   const map = {
     FAST_FOOD: "Fast Food",
@@ -646,6 +661,10 @@ async function startApp(user, token) {
       }
     }, 1500);
   });
+
+  setTimeout(() => {
+    getDataRestaurantCard(token);
+  }, 1500);
 }
 
 async function me(token) {
