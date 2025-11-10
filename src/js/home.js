@@ -434,7 +434,7 @@ async function restaurantById(token, restaurantId) {
   }
 }
 
-function insertRestaurantData(data, contentName, append) {
+function insertRestaurantData(data, contentName, append, token) {
   const restaurantDiv = document.querySelector(`.restaurants-div-dad`);
 
   if (!append) {
@@ -464,6 +464,8 @@ function insertRestaurantData(data, contentName, append) {
     const openHour = parseInt(restaurant.openAt.split(":")[0]);
     const closeHour = parseInt(restaurant.closeAt.split(":")[0]);
     const currentHour = new Date().getHours();
+
+    card.dataset.isopen = currentHour >= openHour && currentHour < closeHour;
 
     card.innerHTML = `
       <div class="restaurant-logo">
@@ -513,11 +515,13 @@ function insertRestaurantData(data, contentName, append) {
 
   contentRestaurants.append(contentTitle, restaurants);
   restaurantDiv.appendChild(contentRestaurants);
+
+  getDataRestaurantCard(token);
 }
 
 async function createContentRestaurant(token) {
   const bestRated = await getRestaurant(token, "?pageSize=5");
-  insertRestaurantData(bestRated.data, "Melhor avaliado");
+  insertRestaurantData(bestRated.data, "Melhor avaliado", false, token);
 
   const categories = [
     {
@@ -574,7 +578,7 @@ async function createContentRestaurant(token) {
     );
   } while (secondContent.data.length < 1);
 
-  insertRestaurantData(secondContent.data, `${randomDt.title}`, true);
+  insertRestaurantData(secondContent.data, `${randomDt.title}`, true, token);
 
   let thirdContent = { data: [] };
   let secondCategory = randomDt.category;
@@ -591,39 +595,105 @@ async function createContentRestaurant(token) {
     randomThird.category === secondCategory
   );
 
-  insertRestaurantData(thirdContent.data, randomThird.title, true);
+  insertRestaurantData(thirdContent.data, randomThird.title, true, token);
+}
+
+function showRestaurantInfo(data, token) {
+  console.log(data);
 }
 
 async function getDataRestaurantCard(token) {
   const cards = document.querySelectorAll(".restaurant-card");
   cards.forEach((card) => {
-    card.addEventListener("click", async (ev) => {
-      const restaurantId = ev.currentTarget.dataset.restaurantId;
+    const newCard = card.cloneNode(true);
+    card.parentNode.replaceChild(newCard, card);
 
-      const restaurantDt = await restaurantById(token, Number(restaurantId))
-      console.log(restaurantDt)
+    newCard.addEventListener("click", async (ev) => {
+      const restaurantId = ev.currentTarget.dataset.restaurantId;
+      const isOpen = ev.currentTarget.dataset.isopen === "true";
+
+      if (!isOpen) {
+        messageAnimated(
+          "Estabelecimento fechado.",
+          2500,
+          "top",
+          "right",
+          "6px",
+          "rgb(198, 48, 48)",
+          "#fff",
+          "500"
+        );
+        return;
+      }
+
+      const restaurantDt = await restaurantById(token, Number(restaurantId));
+      showRestaurantInfo(restaurantDt, token);
     });
   });
 }
 
-function formatCategory(category) {
-  const map = {
-    FAST_FOOD: "Fast Food",
-    ITALIAN: "Italiana",
-    JAPANESE: "Japonesa",
-    CHINESE: "Chinesa",
-    MEXICAN: "Mexicana",
-    VEGETARIAN: "Vegetariana",
-    PIZZA: "Pizzaria",
-    BURGER: "Hamburgueria",
-    SEAFOOD: "Frutos do Mar",
-    BAKERY: "Padaria",
-    COFFEE_SHOP: "Cafeteria",
-    DESSERT: "Sobremesas",
-    OTHERS: "Outros",
-  };
+function formatCategory(category, isPortuguese) {
+  if (isPortuguese) {
+    const categoryMap = {
+      fastfood: "FAST_FOOD",
+      italiana: "ITALIAN",
+      japonesa: "JAPANESE",
+      chinesa: "CHINESE",
+      mexicana: "MEXICAN",
+      vegetariana: "VEGETARIAN",
+      pizzaria: "PIZZA",
+      hamburgueria: "BURGER",
+      frutosdomar: "SEAFOOD",
+      padaria: "BAKERY",
+      cafeteria: "COFFEE_SHOP",
+      sobremesa: "DESSERT",
+    };
+    return categoryMap[category] || category;
+    
+  } else {
+    const map = {
+      FAST_FOOD: "Fast Food",
+      ITALIAN: "Italiana",
+      JAPANESE: "Japonesa",
+      CHINESE: "Chinesa",
+      MEXICAN: "Mexicana",
+      VEGETARIAN: "Vegetariana",
+      PIZZA: "Pizzaria",
+      BURGER: "Hamburgueria",
+      SEAFOOD: "Frutos do Mar",
+      BAKERY: "Padaria",
+      COFFEE_SHOP: "Cafeteria",
+      DESSERT: "Sobremesas",
+      OTHERS: "Outros",
+    };
 
-  return map[category] || category;
+    return map[category] || category;
+  }
+}
+
+function messageAnimated(
+  message,
+  duration,
+  gravity,
+  position,
+  borderRadius,
+  background,
+  color,
+  fontWeight
+) {
+  Toastify({
+    text: message,
+    duration: duration,
+    gravity: gravity, // top ou bottom
+    position: position, // left, center ou right
+    stopOnFocus: true, // não fecha se mouse estiver em cima
+    style: {
+      background: background,
+      color: color,
+      fontWeight: fontWeight,
+      borderRadius: borderRadius, // Em pixel,
+    },
+  }).showToast();
 }
 
 async function startApp(user, token) {
@@ -647,7 +717,42 @@ async function startApp(user, token) {
       return;
     }
 
+    const categories = [
+      "FAST_FOOD",
+      "ITALIAN",
+      "JAPANESE",
+      "CHINESE",
+      "MEXICAN",
+      "VEGETARIAN",
+      "PIZZA",
+      "BURGER",
+      "SEAFOOD",
+      "BAKERY",
+      "COFFEE_SHOP",
+      "DESSERT",
+    ];
+
     searchTimeout = setTimeout(async () => {
+      const matchedCategories = categories.filter((c) =>
+        c.toLowerCase().includes(query)
+      );
+
+      const ptCategory = formatCategory(matchedCategories[0], true)
+      if (matchedCategories.length > 0) {
+        const restaurant = await getRestaurant(
+          token,
+          `?pageSize=10&category=${ptCategory}`
+        );
+        const data = restaurant.data;
+
+        if (data && data.length > 0) {
+          insertRestaurantData(data, `Resultado para "${query}"`, false, token);
+        } else {
+          createContentRestaurant(token);
+        }
+        return;
+      }
+
       const restaurant = await getRestaurant(
         token,
         `?pageSize=10&name=${query}`
@@ -655,16 +760,12 @@ async function startApp(user, token) {
       const data = restaurant.data;
 
       if (data && data.length > 0) {
-        insertRestaurantData(data, `Resultado para "${query}"`);
+        insertRestaurantData(data, `Resultado para "${query}"`, false, token);
       } else {
         createContentRestaurant(token);
       }
     }, 1500);
   });
-
-  setTimeout(() => {
-    getDataRestaurantCard(token);
-  }, 1500);
 }
 
 async function me(token) {
