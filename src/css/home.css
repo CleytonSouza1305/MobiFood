@@ -540,6 +540,10 @@ section .all-restaurants::-webkit-scrollbar {
   box-shadow: 0 0 3px var(--black-color);
   border-radius: 50%;
   padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .restaurants .restaurant-card .restaurant-logo img {
