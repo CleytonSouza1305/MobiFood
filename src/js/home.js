@@ -600,6 +600,75 @@ async function createContentRestaurant(token) {
 
 function showRestaurantInfo(data, token) {
   console.log(data);
+  const content = document.querySelector(".modal-data-restaurant");
+
+  if (content) {
+    content.classList.add("active");
+
+    function handleOutsideClick(ev) {
+      if (ev.target === content) {
+        content.classList.remove("active");
+        content.removeEventListener("click", handleOutsideClick); 
+      }
+    }
+
+    content.addEventListener("click", handleOutsideClick);
+
+    const infoCOntent = content.querySelector(".infos");
+    infoCOntent.innerHTML = "";
+
+    const menu = data.menu
+
+    infoCOntent.innerHTML = `
+      <div class="close-content">
+        <i class="fa-solid fa-reply"></i>
+      </div>
+
+      <div class="top-data-info">
+        <div class="logo">
+          ${
+            data.logoUrl
+              ? `<img src=${data.logoUrl} alt=${data.name}/>`
+              : `<span>Imagem do restaurante</span>`
+          }
+        </div>
+          
+        <div class="restaurant-data">
+            <h2 class="restaurant-title">${data.name}</h2>
+
+            <div class="avaliation-content">
+              ${
+                data.avaliation
+                  ? `<span>${String(data.avaliation).replace(".", ",")}</span>`
+                  : `<span>0</span>`
+              }
+              <i class="fa-solid fa-star"></i>
+            </div>
+            </div>
+      </div>
+
+      ${data.local ? `<p>${data.local}</p>` : `<p>Endereço não disponível</p>`}
+
+      <h2>Menu</h2>
+      <div class="menu-content">
+         ${
+          menu.forEach((item) => {
+            `<div class="menu-card">
+                <div class="card-image">
+                  <img src=${item.imageUrl} alt=${item.name}/>
+                </div>
+            </div>`
+          })
+         }
+      </div>
+    `;
+  }
+
+  if (content.classList.contains("active")) {
+    document.querySelector(".fa-reply").addEventListener("click", () => {
+      content.classList.toggle("active");
+    });
+  }
 }
 
 async function getDataRestaurantCard(token) {
@@ -649,7 +718,6 @@ function formatCategory(category, isPortuguese) {
       sobremesa: "DESSERT",
     };
     return categoryMap[category] || category;
-    
   } else {
     const map = {
       FAST_FOOD: "Fast Food",
@@ -737,7 +805,7 @@ async function startApp(user, token) {
         c.toLowerCase().includes(query)
       );
 
-      const ptCategory = formatCategory(matchedCategories[0], true)
+      const ptCategory = formatCategory(matchedCategories[0], true);
       if (matchedCategories.length > 0) {
         const restaurant = await getRestaurant(
           token,

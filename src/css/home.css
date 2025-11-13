@@ -592,6 +592,7 @@ span.isClosed {
 }
 
 .modal-data-restaurant {
+  overflow-y: auto;
   position: fixed;
   top: 0;
   left: 0;
@@ -622,10 +623,18 @@ span.isClosed {
   box-shadow: 0 2px 5px var(--third-black-color);
   transform: translateY(-30px);
   transition: transform 0.3s ease;
+  max-height: 90vh; 
+  overflow-y: auto;
 }
 
 .modal-data-restaurant.active .infos {
   transform: translateY(0);
+}
+
+.infos .close-content i {
+  color: var(--black-color);
+  cursor: pointer;
+  transform: scaleY(-1);
 }
 
 @media (max-width: 420px) {
