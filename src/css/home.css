@@ -594,7 +594,6 @@ span.isClosed {
 }
 
 .modal-data-restaurant {
-  overflow-y: auto;
   position: fixed;
   top: 0;
   left: 0;
@@ -615,8 +614,8 @@ span.isClosed {
   pointer-events: all;
 }
 
-
 .infos {
+  position: relative;
   background: var(--third-white-color);
   width: 90%;
   max-width: 760px;
@@ -629,9 +628,197 @@ span.isClosed {
   overflow-y: auto;
 }
 
+.comment-content {
+  position: absolute;
+  top: 0;
+  right: -250px;
+  width: 250px;
+  height: 310px;
+  max-height: 330px;
+  box-shadow: -2px 0 2px var(--third-black-color);
+  background-color: var(--third-white-color);
+  border-radius: 6px;
+  transition: ease-in-out 250ms;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.comment-content.active {
+  right: 0;
+}
+
+.infos .comment-content .fa-xmark {
+  color: var(--black-color);
+  cursor: pointer;
+  margin: .5rem;
+}
+
+.comment-content .comment-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-area form {
+  width: 100%;
+  padding-top: .5rem;
+  background: var(--third-white-color);
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+form .submit-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+}
+
+.comment-area form input {
+  width: 85%;
+  border: 1px solid var(--black-color);
+  padding: .5rem .75rem;
+  border-radius: var(--button-border-radius);
+}
+
+.comment-area form i {
+  color: var(--black-color);
+  font-size: 1rem;
+}
+
+.rating-box {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  justify-content: start;
+  gap: .25rem;
+}
+
+.rating-box input {
+  display: none;
+}
+
+.rating-box label i {
+  font-size: 1.1rem;
+  color: var(--secunday-black-color);
+  cursor: pointer;
+}
+
+.rating-box label:hover i,
+.rating-box label:hover ~ label i {
+  color: var(--secondary-color);
+}
+
+.rating-box input:checked ~ label i {
+  color: var(--primary-color);
+}
+
+.all-comments {
+  width: 100%;
+  height: 185px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: .75rem;
+  padding-right: .25rem;
+  padding-bottom: 1rem;
+}
+
+.all-comments::-webkit-scrollbar {
+  width: 6px;
+}
+
+.all-comments::-webkit-scrollbar-thumb {
+  background: var(--secunday-black-color);
+  border-radius: 4px;
+}
+
+.all-comments .no-comment {
+  margin: auto;
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 1.1px;
+  font-size: 1.2rem;
+  color: #8a8a8a;
+  margin-bottom: 3rem;
+}
+
+.comment-card {
+  background: var(--white-color);
+  border: 1px solid var(--third-white-color);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  animation: fadeIn .25s ease;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--white-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.username {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--black-color);
+}
+
+.comment-date {
+  font-size: .85rem;
+  color: #8a8a8a;
+  font-weight: 500;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+.comment-text {
+  font-size: 13px;
+  color: var(--black-color);
+  line-height: 1.45rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .modal-data-restaurant.active .infos {
   transform: translateY(0);
-  overflow-y: auto; 
   scrollbar-width: none;     
   -ms-overflow-style: none;
 }

@@ -603,7 +603,7 @@ function createMenuCard(menu, contentName) {
   content.classList.add("container");
 
   const h3 = document.createElement("h3");
-  h3.innerHTML = contentName + `<i class="fa-solid fa-chevron-right"></i>`
+  h3.innerHTML = contentName + `<i class="fa-solid fa-chevron-right"></i>`;
 
   const menuData = document.createElement("div");
   menuData.classList.add("container-menu");
@@ -631,7 +631,7 @@ function createMenuCard(menu, contentName) {
     const productname = document.createElement("p");
     productname.textContent = menu[i].name;
 
-    leftData.append(productImage, productname)
+    leftData.append(productImage, productname);
 
     const rigthData = document.createElement("div");
     rigthData.classList.add("content-rigth-data");
@@ -642,7 +642,7 @@ function createMenuCard(menu, contentName) {
     const productPrice = document.createElement("span");
     productPrice.textContent = "R$ " + menu[i].price.replace(".", ",");
 
-    rigthData.append(productDescription, productPrice)
+    rigthData.append(productDescription, productPrice);
 
     const addProductForm = document.createElement("form");
     addProductForm.id = "add-product";
@@ -711,7 +711,91 @@ function showRestaurantInfo(data, token) {
     const closeContent = document.createElement("div");
     closeContent.classList.add("close-content");
     closeContent.innerHTML = `
-    <i class="fa-solid fa-reply"></i><button id="see-comments">Ver comentários</button>`
+    <i class="fa-solid fa-reply"></i><button id="see-comments">Ver comentários</button>`;
+
+    const commentContent = document.createElement("div");
+    commentContent.classList.add("comment-content");
+
+    commentContent.innerHTML = `
+      <span class="close-comments"><i class="fa-solid fa-xmark"></i><span/>
+    `;
+
+    const commentAreaContainer = document.createElement("div");
+    commentAreaContainer.classList.add("comment-area");
+
+    const allComments = document.createElement("div");
+    allComments.classList.add("all-comments");
+
+    const commentForm = document.createElement("form");
+    commentForm.method = "post";
+
+    commentForm.innerHTML = `
+  <div class="rating-box">
+    <input type="radio" name="rating" id="star5" value="5">
+    <label for="star5"><i class="fa-solid fa-star"></i></label>
+
+    <input type="radio" name="rating" id="star4" value="4">
+    <label for="star4"><i class="fa-solid fa-star"></i></label>
+
+    <input type="radio" name="rating" id="star3" value="3">
+    <label for="star3"><i class="fa-solid fa-star"></i></label>
+
+    <input type="radio" name="rating" id="star2" value="2">
+    <label for="star2"><i class="fa-solid fa-star"></i></label>
+
+    <input type="radio" name="rating" id="star1" value="1">
+    <label for="star1"><i class="fa-solid fa-star"></i></label>
+  </div>
+
+  <div class="submit-content">
+    <input type="text" id="comment-input" placeholder="Comentar..." />
+
+  <button type="submit">
+    <i class="fa-regular fa-paper-plane"></i>
+  </button>
+  <div/>
+`;
+
+    commentAreaContainer.append(allComments, commentForm);
+    commentContent.append(commentAreaContainer);
+
+    if (data.comments && data.comments.length > 0) {
+      data.comments.forEach((comment) => {
+        const card = document.createElement("div");
+        card.classList.add("comment-card");
+
+        const createdDate = new Date(comment.createdAt).toLocaleDateString(
+          "pt-BR",
+          {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }
+        );
+
+        card.innerHTML = `
+      <div class="comment-header">
+        <div class="user-avatar">${comment.user.username.charAt(0)}</div>
+        <div>
+          <h4 class="username">${comment.user.username}</h4>
+          <span class="comment-date">${createdDate}</span>
+        </div>
+        <div class="rating">
+          <i class="fa-solid fa-star"></i>
+          <span>${comment.rating}</span>
+        </div>
+      </div>
+
+      <p class="comment-text">${comment.comment}</p>
+    `;
+
+        allComments.appendChild(card);
+      });
+    } else {
+      allComments.innerHTML = `
+        <p class="no-comment">Nenhuma avaliação disponível</p>
+      `;
+    }
 
     const topDataInfo = document.createElement("div");
     topDataInfo.classList.add("top-data-info");
@@ -755,9 +839,25 @@ function showRestaurantInfo(data, token) {
       });
     }
 
+    infoCOntent.append(commentContent);
+
+    const openCommentBtn = document.getElementById("see-comments");
+    openCommentBtn.addEventListener("click", () => {
+      const modal = document.querySelector(".comment-content");
+      modal.classList.toggle("active");
+
+      document
+        .querySelector(".close-comments")
+        .addEventListener("click", () => {
+          if (modal.classList.contains("active")) {
+            modal.classList.remove("active");
+          }
+        });
+    });
+
     if (!menu || menu.length === 0) {
       const dontHaveMenu = document.createElement("p");
-      dontHaveMenu.classList.add('dont-have-menu')
+      dontHaveMenu.classList.add("dont-have-menu");
       dontHaveMenu.textContent = "Cardápio indisponível.";
       infoCOntent.append(dontHaveMenu);
       return;
