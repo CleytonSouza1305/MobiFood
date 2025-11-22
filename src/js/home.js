@@ -33,7 +33,7 @@ function switchUserTheme(theme) {
     root.style.setProperty("--black-color", "#0a0a0a");
     root.style.setProperty("--secunday-white-color", "#bcc2c8ff");
     root.style.setProperty("--secunday-black-color", "#000000ff");
-    root.style.setProperty("--third-white-color", "#dee4ea");
+    root.style.setProperty("--third-white-color", "#dbdbdc");
     root.style.setProperty("--third-black-color", "#1e1f20ff");
   } else {
     root.style.setProperty("--white-color", "#0a0a0a");
@@ -41,7 +41,7 @@ function switchUserTheme(theme) {
     root.style.setProperty("--secunday-white-color", "#000000ff");
     root.style.setProperty("--secunday-black-color", "#bcc2c8ff");
     root.style.setProperty("--third-white-color", "#1e1f20ff");
-    root.style.setProperty("--third-black-color", "#dee4ea");
+    root.style.setProperty("--third-black-color", "#dbdbdc");
   }
 }
 
@@ -598,6 +598,95 @@ async function createContentRestaurant(token) {
   insertRestaurantData(thirdContent.data, randomThird.title, true, token);
 }
 
+function createMenuCard(menu, contentName) {
+  const content = document.createElement("div");
+  content.classList.add("container");
+
+  const h3 = document.createElement("h3");
+  h3.innerHTML = contentName + `<i class="fa-solid fa-chevron-right"></i>`
+
+  const menuData = document.createElement("div");
+  menuData.classList.add("container-menu");
+
+  for (let i = 0; i < menu.length; i++) {
+    const card = document.createElement("div");
+    card.classList.add("card-menu");
+
+    const leftData = document.createElement("div");
+    leftData.classList.add("content-left-data");
+
+    const productImage = document.createElement("div");
+    productImage.classList.add("product-image");
+
+    if (menu[i].imageUrl) {
+      productImage.innerHTML = `
+        <img src="${menu[i].imageUrl}" alt="${menu[i].name}" />
+      `;
+    } else {
+      productImage.innerHTML = `
+        <img src="https://images.tcdn.com.br/img/img_prod/843866/1621728785_produto-indisponivel.jpg" alt="Produto indisponível" />
+      `;
+    }
+
+    const productname = document.createElement("p");
+    productname.textContent = menu[i].name;
+
+    leftData.append(productImage, productname)
+
+    const rigthData = document.createElement("div");
+    rigthData.classList.add("content-rigth-data");
+
+    const productDescription = document.createElement("p");
+    productDescription.textContent = menu[i].description;
+
+    const productPrice = document.createElement("span");
+    productPrice.textContent = "R$ " + menu[i].price.replace(".", ",");
+
+    rigthData.append(productDescription, productPrice)
+
+    const addProductForm = document.createElement("form");
+    addProductForm.id = "add-product";
+    addProductForm.method = "get";
+
+    const btn = document.createElement("button");
+    btn.type = "submit";
+    btn.classList.add("add-cart-btn");
+    btn.innerHTML = `<i class="fa-solid fa-cart-plus"></i>`;
+
+    addProductForm.append(btn);
+    card.append(leftData, rigthData, addProductForm);
+    menuData.append(card);
+  }
+
+  content.append(h3, menuData);
+
+  const menuContent = document.querySelector(".menu-content");
+  menuContent.append(content);
+
+  console.log(menu);
+  console.log(contentName);
+}
+
+function menuCategoryMap(category) {
+  const categories = {
+    BURGER: "Carne",
+    PIZZA: "Pizza",
+    SUSHI: "Japonês",
+    SANDWICH: "Frango",
+    DRINK: "Bebidas",
+    DESSERT: "Sobremesas",
+    SALAD: "Salada",
+    SOUP: "Sopa",
+    SNACK: "Lanche",
+    BREAKFAST: "Café da manhã",
+    VEGAN: "Vegano",
+    VEGETARIAN: "Vegetariano",
+    OTHERS: "Outros",
+  };
+
+  return categories[category] || category;
+}
+
 function showRestaurantInfo(data, token) {
   console.log(data);
   const content = document.querySelector(".modal-data-restaurant");
@@ -608,7 +697,7 @@ function showRestaurantInfo(data, token) {
     function handleOutsideClick(ev) {
       if (ev.target === content) {
         content.classList.remove("active");
-        content.removeEventListener("click", handleOutsideClick); 
+        content.removeEventListener("click", handleOutsideClick);
       }
     }
 
@@ -617,24 +706,28 @@ function showRestaurantInfo(data, token) {
     const infoCOntent = content.querySelector(".infos");
     infoCOntent.innerHTML = "";
 
-    const menu = data.menu
+    const menu = data.menu;
 
-    infoCOntent.innerHTML = `
-      <div class="close-content">
-        <i class="fa-solid fa-reply"></i>
-      </div>
+    const closeContent = document.createElement("div");
+    closeContent.classList.add("close-content");
+    closeContent.innerHTML = `
+    <i class="fa-solid fa-reply"></i><button id="see-comments">Ver comentários</button>`
 
-      <div class="top-data-info">
-        <div class="logo">
-          ${
-            data.logoUrl
-              ? `<img src=${data.logoUrl} alt=${data.name}/>`
-              : `<span>Imagem do restaurante</span>`
-          }
-        </div>
-          
-        <div class="restaurant-data">
-            <h2 class="restaurant-title">${data.name}</h2>
+    const topDataInfo = document.createElement("div");
+    topDataInfo.classList.add("top-data-info");
+
+    const logoContent = document.createElement("div");
+    logoContent.classList.add("logo");
+
+    data.logoUrl
+      ? (logoContent.innerHTML = `<img src=${data.logoUrl} alt=${data.name}/>`)
+      : (logoContent.innerHTML = `<span>Imagem do restaurante</span>`);
+
+    const restaurantData = document.createElement("div");
+    restaurantData.classList.add("restaurant-data");
+
+    restaurantData.innerHTML = `
+      <h2 class="restaurant-title">${data.name}</h2>
 
             <div class="avaliation-content">
               ${
@@ -644,29 +737,48 @@ function showRestaurantInfo(data, token) {
               }
               <i class="fa-solid fa-star"></i>
             </div>
-            </div>
-      </div>
-
-      ${data.local ? `<p>${data.local}</p>` : `<p>Endereço não disponível</p>`}
-
-      <h2>Menu</h2>
-      <div class="menu-content">
-         ${
-          menu.forEach((item) => {
-            `<div class="menu-card">
-                <div class="card-image">
-                  <img src=${item.imageUrl} alt=${item.name}/>
-                </div>
-            </div>`
-          })
-         }
-      </div>
     `;
-  }
 
-  if (content.classList.contains("active")) {
-    document.querySelector(".fa-reply").addEventListener("click", () => {
-      content.classList.toggle("active");
+    topDataInfo.append(logoContent, restaurantData);
+
+    const address = document.createElement("p");
+    address.classList.add("restaurant-local");
+    address.innerHTML = `${
+      data.local ? `${data.local}` : `Endereço não disponível`
+    }`;
+
+    infoCOntent.append(closeContent, topDataInfo, address);
+
+    if (content.classList.contains("active")) {
+      document.querySelector(".fa-reply").addEventListener("click", () => {
+        content.classList.toggle("active");
+      });
+    }
+
+    if (!menu || menu.length === 0) {
+      const dontHaveMenu = document.createElement("p");
+      dontHaveMenu.classList.add('dont-have-menu')
+      dontHaveMenu.textContent = "Cardápio indisponível.";
+      infoCOntent.append(dontHaveMenu);
+      return;
+    }
+
+    const h2 = document.createElement("h2");
+    h2.textContent = "• Menu •";
+
+    const menuContent = document.createElement("div");
+    menuContent.classList.add("menu-content");
+
+    infoCOntent.append(h2, menuContent);
+
+    const categories = [...new Set(menu.map((m) => m.category))];
+
+    categories.forEach((cat) => {
+      const data = menu.filter((m) => m.category === cat);
+
+      if (data.length > 0) {
+        createMenuCard(data, menuCategoryMap(cat));
+      }
     });
   }
 }
