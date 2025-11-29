@@ -687,6 +687,91 @@ function menuCategoryMap(category) {
   return categories[category] || category;
 }
 
+async function commentReq({ restaurantId, userId, comment, rating }, token) {
+  showLoader()
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/restaurant/${restaurantId}/comment/${userId}`, {
+      method: 'post',
+      headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      body: JSON.stringify({ comment, rating })
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message)
+    }
+
+    return data
+  } catch (error) {
+    console.error(`Erro ao efetuar comentário, motivo: ${error}`)
+  } finally {
+    hideLoader()
+  }
+}
+
+function submitComment(restaurantId, token) {
+  const commentForm = document.getElementById("comment-form");
+  commentForm.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const input = document.getElementById("comment-input");
+
+    const value = input.value.trim();
+    if (!value || value.length < 3 || value.length > 300) {
+      messageAnimated(
+        "O comentário é obrigatório (3 a 300 caracteres).",
+        3000,
+        "top",
+        "right",
+        "6px",
+        "rgb(198, 48, 48)",
+        "#fff",
+        "500"
+      );
+      return;
+    }
+
+    const ratingCheckbox = document.querySelector(
+      'input[name="rating"]:checked'
+    );
+
+    if (!ratingCheckbox) {
+      messageAnimated(
+        "Escolha uma nota antes de continuar.",
+        3000,
+        "top",
+        "right",
+        "6px",
+        "rgb(198, 48, 48)",
+        "#fff",
+        "500"
+      );
+      return;
+    }
+
+    const actualUser = await me(token)
+
+    const data = {
+      rating: +ratingCheckbox.value,
+      comment: value,
+      userId: actualUser.id,
+      restaurantId
+    }
+
+    await commentReq({...data}, token)
+    const restaurant = await restaurantById(token, restaurantId)
+
+    if (restaurant || restaurant.length > 0) {
+      console.log(restaurant)
+      showRestaurantInfo(restaurant, token)
+    }
+
+  };
+}
+
 function showRestaurantInfo(data, token) {
   console.log(data);
   const content = document.querySelector(".modal-data-restaurant");
@@ -727,23 +812,24 @@ function showRestaurantInfo(data, token) {
     allComments.classList.add("all-comments");
 
     const commentForm = document.createElement("form");
+    commentForm.id = "comment-form";
     commentForm.method = "post";
 
     commentForm.innerHTML = `
   <div class="rating-box">
-    <input type="radio" name="rating" id="star5" value="5">
+    <input type="radio" name="rating" class="rating-input" id="star5" value="5">
     <label for="star5"><i class="fa-solid fa-star"></i></label>
 
-    <input type="radio" name="rating" id="star4" value="4">
+    <input type="radio" name="rating" class="rating-input" id="star4" value="4">
     <label for="star4"><i class="fa-solid fa-star"></i></label>
 
-    <input type="radio" name="rating" id="star3" value="3">
+    <input type="radio" name="rating" class="rating-input" id="star3" value="3">
     <label for="star3"><i class="fa-solid fa-star"></i></label>
 
-    <input type="radio" name="rating" id="star2" value="2">
+    <input type="radio" name="rating" class="rating-input" id="star2" value="2">
     <label for="star2"><i class="fa-solid fa-star"></i></label>
 
-    <input type="radio" name="rating" id="star1" value="1">
+    <input type="radio" name="rating" class="rating-input" id="star1" value="1">
     <label for="star1"><i class="fa-solid fa-star"></i></label>
   </div>
 
@@ -816,7 +902,7 @@ function showRestaurantInfo(data, token) {
             <div class="avaliation-content">
               ${
                 data.avaliation
-                  ? `<span>${String(data.avaliation).replace(".", ",")}</span>`
+                  ? `<span>${data.avaliation.toFixed(2).replace(".", ",")}</span>`
                   : `<span>0</span>`
               }
               <i class="fa-solid fa-star"></i>
@@ -853,6 +939,8 @@ function showRestaurantInfo(data, token) {
             modal.classList.remove("active");
           }
         });
+
+      submitComment(data.id, token);
     });
 
     if (!menu || menu.length === 0) {
