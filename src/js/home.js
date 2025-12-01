@@ -707,7 +707,16 @@ async function commentReq({ restaurantId, userId, comment, rating }, token) {
 
     return data
   } catch (error) {
-    console.error(`Erro ao efetuar comentário, motivo: ${error}`)
+    messageAnimated(
+        error.message,
+        4000,
+        "top",
+        "right",
+        "6px",
+        "rgb(198, 48, 48)",
+        "#fff",
+        "500"
+      );
   } finally {
     hideLoader()
   }
@@ -902,7 +911,7 @@ function showRestaurantInfo(data, token) {
             <div class="avaliation-content">
               ${
                 data.avaliation
-                  ? `<span>${data.avaliation.toFixed(2).replace(".", ",")}</span>`
+                  ? `<span>${data.avaliation.toFixed(1)}</span>`
                   : `<span>0</span>`
               }
               <i class="fa-solid fa-star"></i>
