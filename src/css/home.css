@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap");
 
 :root {
   --primary-color: hsl(212, 91%, 51%);
@@ -624,7 +624,7 @@ span.isClosed {
   box-shadow: 0 2px 5px var(--third-black-color);
   transform: translateY(-30px);
   transition: transform 0.3s ease;
-  max-height: 90vh; 
+  max-height: 90vh;
   overflow-y: auto;
 }
 
@@ -651,38 +651,38 @@ span.isClosed {
 .infos .comment-content .fa-xmark {
   color: var(--black-color);
   cursor: pointer;
-  margin: .5rem;
+  margin: 0.5rem;
 }
 
 .comment-content .comment-area {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: .75rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
 }
 
 .comment-area form {
   width: 100%;
-  padding-top: .5rem;
+  padding-top: 0.5rem;
   background: var(--third-white-color);
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 form .submit-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .comment-area form input {
   width: 85%;
   border: 1px solid var(--black-color);
-  padding: .5rem .75rem;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--button-border-radius);
 }
 
@@ -696,7 +696,7 @@ form .submit-content {
   align-items: center;
   flex-direction: row-reverse;
   justify-content: start;
-  gap: .25rem;
+  gap: 0.25rem;
 }
 
 .rating-box input {
@@ -724,8 +724,8 @@ form .submit-content {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  gap: .75rem;
-  padding-right: .25rem;
+  gap: 0.75rem;
+  padding-right: 0.25rem;
   padding-bottom: 1rem;
 }
 
@@ -755,9 +755,9 @@ form .submit-content {
   padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: .65rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  animation: fadeIn .25s ease;
+  gap: 0.65rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.25s ease;
 }
 
 .comment-header {
@@ -769,7 +769,7 @@ form .submit-content {
 .comment-user-info {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: 0.75rem;
 }
 
 .user-avatar {
@@ -792,7 +792,7 @@ form .submit-content {
 }
 
 .comment-date {
-  font-size: .85rem;
+  font-size: 0.85rem;
   color: #8a8a8a;
   font-weight: 500;
 }
@@ -800,10 +800,10 @@ form .submit-content {
 .rating {
   display: flex;
   align-items: center;
-  gap: .15rem;
+  gap: 0.15rem;
   color: var(--primary-color);
   font-weight: 600;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 .comment-text {
@@ -813,13 +813,19 @@ form .submit-content {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-data-restaurant.active .infos {
   transform: translateY(0);
-  scrollbar-width: none;     
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
@@ -834,7 +840,7 @@ form .submit-content {
   color: var(--black-color);
   font-weight: 500;
   border: 1.5px solid transparent;
-  padding: .5rem .75rem;
+  padding: 0.5rem 0.75rem;
   transition: ease-in-out 250ms;
 }
 
@@ -861,7 +867,7 @@ form .submit-content {
   height: 100px;
   border-radius: 50%;
   border: 1px solid var(--black-color);
-  padding: .3rem;
+  padding: 0.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -882,7 +888,7 @@ form .submit-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .restaurant-data .avaliation-content {
@@ -911,34 +917,102 @@ form .submit-content {
   font-weight: 400;
 }
 
-.menu-content .container {
-  margin-bottom: 1.5rem;
+.container {
+  padding: 16px;
 }
 
-.menu-content .container h3 {
-  margin-bottom: 1rem;
-  font-size: 1.7rem;
-  font-weight: 400;
-  letter-spacing: 0.2px;
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-}
-
-.container h3 i {
+.container h3 {
   font-size: 1.4rem;
-}
-
-.menu-content {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: 1fr;
-  margin-top: 1rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .container-menu {
-  
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+.card-menu {
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  background: var(--secunday-white-color);
+  padding: 1rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px var(--secunday-white-color);
+  transition: transform 0.15s ease;
+}
+
+.card-menu:hover {
+  transform: scale(1.02);
+}
+
+.content-left-data {
+  width: 30%;
+}
+
+.product-image {
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content-left-data p {
+  color: var(--black-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.content-rigth-data {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.content-rigth-data p {
+  color: var(--third-black-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.3rem;
+}
+
+.content-rigth-data span {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.add-cart-btn {
+  background: var(--primary-color);
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.add-cart-btn:hover {
+  background: var(--secondary-color);
+}
+
+#add-product {
+  display: flex;
+  align-items: center;
+}
 
 .dont-have-menu {
   text-align: center;
@@ -992,5 +1066,24 @@ form .submit-content {
 
   section .all-restaurants {
     margin-left: 0;
+  }
+
+  .content-rigth-data p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* quantidade de linhas antes de cortar */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+  }
+
+  .product-image {
+    width: 90%;
+    height: 90px;
+  }
+
+  .content-left-data p {
+    font-size: 14px;
+    font-weight: 400;
   }
 }
