@@ -116,6 +116,14 @@ header {
   z-index: 3;
 }
 
+.add-address-btn {
+  width: 100%;         
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;     
+}
+
 .address-content p {
   white-space: nowrap;
   overflow: hidden;
@@ -1021,10 +1029,16 @@ form .submit-content {
   font-weight: 500;
 }
 
+.cart-modal {
+  background-color: red;
+  position: absolute;
+  right: 0;
+  top: 1rem;
+}
+
 @media (max-width: 420px) {
   main header .address-content {
-    margin-left: 40px;
-    width: 100%;
+    width: 85%;
     padding: 1rem 0.35rem;
     font-size: 16px;
     font-weight: 400;
