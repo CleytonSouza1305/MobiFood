@@ -117,11 +117,11 @@ header {
 }
 
 .add-address-btn {
-  width: 100%;         
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: center;     
+  text-align: center;
 }
 
 .address-content p {
@@ -1030,10 +1030,14 @@ form .submit-content {
 }
 
 .cart-modal {
-  background-color: red;
   position: absolute;
+  width: 90%;
+  height: 75%;
   right: 0;
-  top: 1rem;
+  top: 0;
+  border-radius: 8px;
+  background-color: var(--third-white-color);
+  z-index: 10;
 }
 
 @media (max-width: 420px) {

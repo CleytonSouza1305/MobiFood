@@ -711,6 +711,38 @@ function createMenuCard(menu, contentName, token) {
   menuContent.append(content);
 }
 
+function openCartModal(token) {
+  const modal = document.querySelector('.cart-modal')
+  console.log(modal)
+}
+
+function itemsAsideAction(token) {
+  const items = document.querySelectorAll(".list-aside-item");
+  items.forEach((i) => {
+    i.addEventListener("click", (ev) => {
+      const button = ev.currentTarget.querySelector("button");
+      const text = button.textContent.trim();
+
+      switch (text) {
+        case "Meus pedidos":
+          openCartModal(token)
+          break;
+
+        case "Meu carrinho":
+          alert();
+          break;
+
+        case "Cupons":
+          alert();
+          break;
+
+        default:
+          return;
+      }
+    });
+  });
+}
+
 function menuCategoryMap(category) {
   const categories = {
     BURGER: "Carne",
@@ -1125,6 +1157,7 @@ async function startApp(user, token) {
   insertUserData(user, token);
   openMobileMenu();
   createContentRestaurant(token);
+  itemsAsideAction(token);
 
   const searchInput = document.getElementById("query");
   let searchTimeout;
