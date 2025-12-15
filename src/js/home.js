@@ -598,7 +598,41 @@ async function createContentRestaurant(token) {
   insertRestaurantData(thirdContent.data, randomThird.title, true, token);
 }
 
-function createMenuCard(menu, contentName) {
+async function addInCartRequest(token, itemId) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/cart`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ itemId, quantity: 1 }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    messageAnimated(
+      "Produto adicionado ao carrinho!",
+      3000,
+      "top",
+      "right",
+      "12px",
+      "#107af4",
+      "#fff",
+      "500"
+    );
+  } catch (error) {
+    console.log(`Erro ao adicionar item ao carrinho, ${error.message}`);
+  } finally {
+    hideLoader();
+  }
+}
+
+function createMenuCard(menu, contentName, token) {
   const content = document.createElement("div");
   content.classList.add("container");
 
@@ -640,12 +674,17 @@ function createMenuCard(menu, contentName) {
     productDescription.textContent = menu[i].description;
 
     const productPrice = document.createElement("span");
-    productPrice.textContent = "R$ " + menu[i].price.replace(".", ",");
+    const priceNumber = Number(menu[i].price);
+
+    productPrice.textContent = priceNumber.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
 
     rigthData.append(productDescription, productPrice);
 
     const addProductForm = document.createElement("form");
-    addProductForm.id = "add-product";
+    addProductForm.classList.add("add-product");
     addProductForm.method = "get";
 
     const btn = document.createElement("button");
@@ -654,6 +693,14 @@ function createMenuCard(menu, contentName) {
     btn.innerHTML = `<i class="fa-solid fa-cart-plus"></i>`;
 
     addProductForm.append(btn);
+
+    addProductForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const itemId = menu[i].id;
+
+      addInCartRequest(token, itemId);
+    });
+
     card.append(leftData, rigthData, addProductForm);
     menuData.append(card);
   }
@@ -662,9 +709,6 @@ function createMenuCard(menu, contentName) {
 
   const menuContent = document.querySelector(".menu-content");
   menuContent.append(content);
-
-  console.log(menu);
-  console.log(contentName);
 }
 
 function menuCategoryMap(category) {
@@ -688,37 +732,40 @@ function menuCategoryMap(category) {
 }
 
 async function commentReq({ restaurantId, userId, comment, rating }, token) {
-  showLoader()
+  showLoader();
 
   try {
-    const response = await fetch(`${BASE_URL}/api/restaurant/${restaurantId}/comment/${userId}`, {
-      method: 'post',
-      headers: {
+    const response = await fetch(
+      `${BASE_URL}/api/restaurant/${restaurantId}/comment/${userId}`,
+      {
+        method: "post",
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      body: JSON.stringify({ comment, rating })
-    })
+        body: JSON.stringify({ comment, rating }),
+      }
+    );
 
-    const data = await response.json()
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message);
     }
 
-    return data
+    return data;
   } catch (error) {
     messageAnimated(
-        error.message,
-        4000,
-        "top",
-        "right",
-        "6px",
-        "rgb(198, 48, 48)",
-        "#fff",
-        "500"
-      );
+      error.message,
+      4000,
+      "top",
+      "right",
+      "6px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
   } finally {
-    hideLoader()
+    hideLoader();
   }
 }
 
@@ -761,28 +808,26 @@ function submitComment(restaurantId, token) {
       return;
     }
 
-    const actualUser = await me(token)
+    const actualUser = await me(token);
 
     const data = {
       rating: +ratingCheckbox.value,
       comment: value,
       userId: actualUser.id,
-      restaurantId
-    }
+      restaurantId,
+    };
 
-    await commentReq({...data}, token)
-    const restaurant = await restaurantById(token, restaurantId)
+    await commentReq({ ...data }, token);
+    const restaurant = await restaurantById(token, restaurantId);
 
     if (restaurant || restaurant.length > 0) {
-      console.log(restaurant)
-      showRestaurantInfo(restaurant, token)
+      console.log(restaurant);
+      showRestaurantInfo(restaurant, token);
     }
-
   };
 }
 
 function showRestaurantInfo(data, token) {
-  console.log(data);
   const content = document.querySelector(".modal-data-restaurant");
 
   if (content) {
@@ -974,7 +1019,7 @@ function showRestaurantInfo(data, token) {
       const data = menu.filter((m) => m.category === cat);
 
       if (data.length > 0) {
-        createMenuCard(data, menuCategoryMap(cat));
+        createMenuCard(data, menuCategoryMap(cat), token);
       }
     });
   }

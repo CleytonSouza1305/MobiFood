@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap");
 
 :root {
-  --primary-color: hsl(212, 91%, 51%);
+  --primary-color: #107af4;
   --secondary-color: hsl(212, 91%, 61%);
   --white-color: #f4f5f6;
   --secunday-white-color: #c5c7c9;
