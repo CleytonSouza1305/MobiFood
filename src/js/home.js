@@ -713,7 +713,25 @@ function createMenuCard(menu, contentName, token) {
 
 function openCartModal(token) {
   const modal = document.querySelector('.cart-modal')
-  console.log(modal)
+  if (modal.classList.contains('active')) {
+    modal.classList.remove('active')
+  } else {
+    modal.classList.add('active')
+
+    const asideMenu = document.querySelector('.aside')
+    asideMenu.classList.remove('open')
+
+    const menu = document.querySelector('.menu')
+    const menuIcon = menu.querySelector('i')
+
+    menuIcon.classList.remove('fa-xmark')
+    menuIcon.classList.add('fa-bars')
+
+    const closeBtn = modal.querySelector('.close-modal')
+    closeBtn.onclick = () => modal.classList.remove('active')
+
+    //https://i.scdn.co/image/ab67616d00001e02d2b16fb0811bee33cd4a6068
+  }
 }
 
 function itemsAsideAction(token) {
@@ -725,15 +743,15 @@ function itemsAsideAction(token) {
 
       switch (text) {
         case "Meus pedidos":
-          openCartModal(token)
+          alert('Meus pedidos modal')
           break;
 
         case "Meu carrinho":
-          alert();
+          openCartModal(token)
           break;
 
         case "Cupons":
-          alert();
+          alert('Cupons modal');
           break;
 
         default:

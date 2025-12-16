@@ -1030,14 +1030,31 @@ form .submit-content {
 }
 
 .cart-modal {
-  position: absolute;
-  width: 90%;
-  height: 75%;
+  position: fixed;
+  width: 350px;
+  height: 550px;
   right: 0;
   top: 0;
   border-radius: 8px;
   background-color: var(--third-white-color);
   z-index: 10;
+  box-shadow: -2px 0 12px var(--third-black-color);
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.25s ease;
+}
+
+.cart-modal.active {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.calncel-content button {
+  color: var(--third-black-color);
+  padding: 16px 10px;
+  font-size: 1rem;
 }
 
 @media (max-width: 420px) {
@@ -1103,5 +1120,14 @@ form .submit-content {
   .content-left-data p {
     font-size: 14px;
     font-weight: 400;
+  }
+
+  .cart-modal {
+    width: 375px;
+    height: 700px;
+  }
+
+  .calncel-content button {
+    font-size: 1.5rem;
   }
 }
