@@ -711,7 +711,35 @@ function createMenuCard(menu, contentName, token) {
   menuContent.append(content);
 }
 
-function openCartModal(token) {
+async function getCartDataReq(token, cartId) {
+  showLoader()
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/cart/${cartId}`,
+      {
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message)
+    }
+
+    return data
+  } catch (error) {
+    console.log(`Erro ao buscar carrinho, ${error.message}`);
+  } finally {
+    hideLoader()
+  }
+}
+
+async function openCartModal(token, cartId) {
   const modal = document.querySelector('.cart-modal')
   if (modal.classList.contains('active')) {
     modal.classList.remove('active')
@@ -730,11 +758,17 @@ function openCartModal(token) {
     const closeBtn = modal.querySelector('.close-modal')
     closeBtn.onclick = () => modal.classList.remove('active')
 
+    const cart = await getCartDataReq(token, cartId)
+
+    if (cart) {
+      console.log(cart)
+    }
+
     //https://i.scdn.co/image/ab67616d00001e02d2b16fb0811bee33cd4a6068
   }
 }
 
-function itemsAsideAction(token) {
+function itemsAsideAction(token, userData) {
   const items = document.querySelectorAll(".list-aside-item");
   items.forEach((i) => {
     i.addEventListener("click", (ev) => {
@@ -747,7 +781,7 @@ function itemsAsideAction(token) {
           break;
 
         case "Meu carrinho":
-          openCartModal(token)
+          openCartModal(token, userData.cart.id)
           break;
 
         case "Cupons":
@@ -1175,7 +1209,7 @@ async function startApp(user, token) {
   insertUserData(user, token);
   openMobileMenu();
   createContentRestaurant(token);
-  itemsAsideAction(token);
+  itemsAsideAction(token, user);
 
   const searchInput = document.getElementById("query");
   let searchTimeout;
