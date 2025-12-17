@@ -55,7 +55,6 @@
         <div class="aside">
           <aside>
             <ul>
-
               <li class="list-aside-item">
                 <button>
                   <i class="fa-solid fa-bag-shopping"></i> Meus pedidos
@@ -63,7 +62,9 @@
               </li>
 
               <li class="list-aside-item">
-                <button><i class="fa-solid fa-cart-shopping"></i> Meu carrinho</button>
+                <button>
+                  <i class="fa-solid fa-cart-shopping"></i> Meu carrinho
+                </button>
               </li>
 
               <li class="list-aside-item">
@@ -194,9 +195,7 @@
     </div>
 
     <div class="modal-data-restaurant">
-      <div class="infos">
-        
-      </div>
+      <div class="infos"></div>
     </div>
 
     <div class="cart-modal">
@@ -204,9 +203,26 @@
         <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="cart-items"></div>
+      <p>Meu carrinho</p>
 
-      <div class="bottom-infos"></div>
+      <div class="cart-items">
+
+        <p class="empty-cart">Seu carrinho está vazio</p>
+      </div>
+
+      <div class="bottom-infos">
+        <div class="price-row">
+          <span>Entrega</span>
+          <span class="delivery-price">R$ 0,00</span>
+        </div>
+
+        <div class="price-row total">
+          <span>Total</span>
+          <span class="total-price">R$ 0,00</span>
+        </div>
+
+        <button disabled class="checkout-btn">Finalizar pedido</button>
+      </div>
     </div>
 
     <script type="module" src="../js/home.js"></script>

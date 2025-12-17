@@ -10,6 +10,7 @@
   --secunday-black-color: hsl(0, 0%, 24%);
   --third-black-color: #1e1f20ff;
   --gray-color: #6b7280;
+  --green-color: #2ecc71;
   --button-border-radius: 999px;
   --border-radius: 6px;
 }
@@ -1034,7 +1035,7 @@ form .submit-content {
   width: 350px;
   height: 550px;
   right: 0;
-  top: 0;
+  top: 5px;
   border-radius: 8px;
   background-color: var(--third-white-color);
   z-index: 10;
@@ -1043,6 +1044,8 @@ form .submit-content {
   opacity: 0;
   pointer-events: none;
   transition: transform 0.35s ease, opacity 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .cart-modal.active {
@@ -1055,6 +1058,90 @@ form .submit-content {
   color: var(--third-black-color);
   padding: 16px 10px;
   font-size: 1rem;
+}
+
+.cart-modal .cart-items {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow-y: auto;
+  margin-bottom: 148px;
+}
+
+.cart-modal p {
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.empty-cart {
+  color: #999;
+  font-size: 0.95rem;
+}
+
+.bottom-infos {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  background: var(--third-white-color);
+  box-shadow: 0 -1px 0 var(--third-black-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 14px;
+  color: var(--third-black-color);
+}
+
+.price-row.total {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.price-row.total .total-price {
+  color: #2ecc71;
+}
+
+.checkout-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+
+  background: #2ecc71;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.checkout-btn:hover {
+  background: #27ae60;
+}
+
+.checkout-btn:active {
+  transform: scale(0.97);
+}
+
+.checkout-btn:disabled {
+  color: #000;
+  background: #c8c8c8;
+  cursor: not-allowed;
+  transform: none;
 }
 
 @media (max-width: 420px) {
