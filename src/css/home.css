@@ -1109,7 +1109,8 @@ form .submit-content {
   font-weight: 600;
 }
 
-.price-row.total .total-price {
+.price-row.total .total-price,
+.delivery-price {
   color: #2ecc71;
 }
 
@@ -1210,8 +1211,8 @@ form .submit-content {
   }
 
   .cart-modal {
-    width: 375px;
-    height: 700px;
+    width: 100%;
+    height: 90%;
   }
 
   .calncel-content button {

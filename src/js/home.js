@@ -739,6 +739,20 @@ async function getCartDataReq(token, cartId) {
   }
 }
 
+function insertItemsInCart(itemsArr) {
+  if (itemsArr || itemsArr.length > 0) {
+    const itemsContent = document.querySelector('.cart-items')
+    itemsContent.innerHTML = ''
+
+    for (let i = 0; i < itemsArr.length; i++) {
+      console.log(itemsArr[i])
+    }
+  } else {
+    itemsContent.innerHTML = `
+    <p class="empty-cart">Seu carrinho está vazio</p></div>`
+  }
+}
+
 async function openCartModal(token, cartId) {
   const modal = document.querySelector('.cart-modal')
   if (modal.classList.contains('active')) {
@@ -762,6 +776,7 @@ async function openCartModal(token, cartId) {
 
     if (cart) {
       console.log(cart)
+      insertItemsInCart(cart?.items)
     }
 
     //https://i.scdn.co/image/ab67616d00001e02d2b16fb0811bee33cd4a6068
