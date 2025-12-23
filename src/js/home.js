@@ -712,74 +712,108 @@ function createMenuCard(menu, contentName, token) {
 }
 
 async function getCartDataReq(token, cartId) {
-  showLoader()
+  showLoader();
   try {
-    const response = await fetch(
-      `${BASE_URL}/api/cart/${cartId}`,
-      {
-        method: "get",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        }
-      }
-    );
+    const response = await fetch(`${BASE_URL}/api/cart/${cartId}`, {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message);
     }
 
-    return data
+    return data;
   } catch (error) {
     console.log(`Erro ao buscar carrinho, ${error.message}`);
   } finally {
-    hideLoader()
+    hideLoader();
   }
 }
 
 function insertItemsInCart(itemsArr) {
-  if (itemsArr || itemsArr.length > 0) {
-    const itemsContent = document.querySelector('.cart-items')
-    itemsContent.innerHTML = ''
+  if (itemsArr && itemsArr.length > 0) {
+    const itemsContent = document.querySelector(".cart-items");
+    itemsContent.innerHTML = "";
 
-    for (let i = 0; i < itemsArr.length; i++) {
-      console.log(itemsArr[i])
-    }
+    itemsArr.forEach((data) => {
+      console.log(data);
+
+      const priceFormatted = new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(data.item.price);
+
+      itemsContent.innerHTML += `
+  <div class="card-item-cart">  
+    <div class="cart-logo">
+      <img class="cart-image" src="${
+        data.item.imageUrl
+          ? data.item.imageUrl
+          : "https://i.scdn.co/image/ab67616d00001e02d2b16fb0811bee33cd4a6068"
+      }" />
+    </div>
+
+    <div class="center-cart-data">
+      <p class="cart-item-name">${data.item.name}</p>
+
+      <div class="quantity-control">
+        <button class="quantity-btn minus-btn">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+
+        <span class="actual-quantity">${data.quantity}</span>
+
+        <button class="quantity-btn plus-btn">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="right-data">
+      <button class="delete-item">
+          <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  </div>
+`;
+    });
   } else {
     itemsContent.innerHTML = `
-    <p class="empty-cart">Seu carrinho está vazio</p></div>`
+    <p class="empty-cart">Seu carrinho está vazio</p></div>`;
   }
 }
 
 async function openCartModal(token, cartId) {
-  const modal = document.querySelector('.cart-modal')
-  if (modal.classList.contains('active')) {
-    modal.classList.remove('active')
+  const modal = document.querySelector(".cart-modal");
+  if (modal.classList.contains("active")) {
+    modal.classList.remove("active");
   } else {
-    modal.classList.add('active')
+    modal.classList.add("active");
 
-    const asideMenu = document.querySelector('.aside')
-    asideMenu.classList.remove('open')
+    const asideMenu = document.querySelector(".aside");
+    asideMenu.classList.remove("open");
 
-    const menu = document.querySelector('.menu')
-    const menuIcon = menu.querySelector('i')
+    const menu = document.querySelector(".menu");
+    const menuIcon = menu.querySelector("i");
 
-    menuIcon.classList.remove('fa-xmark')
-    menuIcon.classList.add('fa-bars')
+    menuIcon.classList.remove("fa-xmark");
+    menuIcon.classList.add("fa-bars");
 
-    const closeBtn = modal.querySelector('.close-modal')
-    closeBtn.onclick = () => modal.classList.remove('active')
+    const closeBtn = modal.querySelector(".close-modal");
+    closeBtn.onclick = () => modal.classList.remove("active");
 
-    const cart = await getCartDataReq(token, cartId)
+    const cart = await getCartDataReq(token, cartId);
 
     if (cart) {
-      console.log(cart)
-      insertItemsInCart(cart?.items)
+      console.log(cart);
+      insertItemsInCart(cart?.items);
     }
-
-    //https://i.scdn.co/image/ab67616d00001e02d2b16fb0811bee33cd4a6068
   }
 }
 
@@ -792,15 +826,15 @@ function itemsAsideAction(token, userData) {
 
       switch (text) {
         case "Meus pedidos":
-          alert('Meus pedidos modal')
+          alert("Meus pedidos modal");
           break;
 
         case "Meu carrinho":
-          openCartModal(token, userData.cart.id)
+          openCartModal(token, userData.cart.id);
           break;
 
         case "Cupons":
-          alert('Cupons modal');
+          alert("Cupons modal");
           break;
 
         default:
