@@ -736,18 +736,49 @@ async function getCartDataReq(token, cartId) {
   }
 }
 
-function insertItemsInCart(itemsArr) {
+async function updateItemInCart(quantity, itemId) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/cart/${itemId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data
+  } catch (error) {
+    console.log(`Erro ao adicionar item ao carrinho, ${error.message}`);
+
+    messageAnimated(
+      error.message,
+      3000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
+function insertItemsInCart(itemsArr, carttotal) {
+  const itemsContent = document.querySelector(".cart-items");
   if (itemsArr && itemsArr.length > 0) {
-    const itemsContent = document.querySelector(".cart-items");
     itemsContent.innerHTML = "";
 
     itemsArr.forEach((data) => {
       console.log(data);
-
-      const priceFormatted = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(data.item.price);
 
       itemsContent.innerHTML += `
   <div class="card-item-cart">  
@@ -783,6 +814,14 @@ function insertItemsInCart(itemsArr) {
   </div>
 `;
     });
+
+    const priceFormatted = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(carttotal);
+
+    const totalPrice = document.querySelector(".total-price");
+    totalPrice.textContent = priceFormatted;
   } else {
     itemsContent.innerHTML = `
     <p class="empty-cart">Seu carrinho está vazio</p></div>`;
@@ -812,7 +851,7 @@ async function openCartModal(token, cartId) {
 
     if (cart) {
       console.log(cart);
-      insertItemsInCart(cart?.items);
+      insertItemsInCart(cart?.items, cart?.total);
     }
   }
 }
