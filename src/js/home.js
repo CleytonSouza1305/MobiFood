@@ -736,7 +736,7 @@ async function getCartDataReq(token, cartId) {
   }
 }
 
-async function updateItemInCart(quantity, itemId) {
+async function updateItemInCart(quantity, itemId, token) {
   showLoader();
   try {
     const response = await fetch(`${BASE_URL}/api/cart/${itemId}`, {
@@ -753,7 +753,7 @@ async function updateItemInCart(quantity, itemId) {
       throw new Error(data.message);
     }
 
-    return data
+    return data;
   } catch (error) {
     console.log(`Erro ao adicionar item ao carrinho, ${error.message}`);
 
@@ -772,16 +772,52 @@ async function updateItemInCart(quantity, itemId) {
   }
 }
 
-function insertItemsInCart(itemsArr, carttotal) {
+async function deleteItemInCart(itemId, token) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/cart/${itemId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data?.deletedItem;
+  } catch (error) {
+    console.log(`Erro ao deletar item, ${error.message}`);
+
+    messageAnimated(
+      error.message,
+      3000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
+function insertItemsInCart(itemsArr, carttotal, token) {
   const itemsContent = document.querySelector(".cart-items");
+  const totalPrice = document.querySelector(".total-price");
+  const finishOrder = document.querySelector(".checkout-btn");
+
   if (itemsArr && itemsArr.length > 0) {
     itemsContent.innerHTML = "";
 
     itemsArr.forEach((data) => {
-      console.log(data);
-
       itemsContent.innerHTML += `
-  <div class="card-item-cart">  
+  <div class="card-item-cart" data-item-id="${data.item.id}">  
     <div class="cart-logo">
       <img class="cart-image" src="${
         data.item.imageUrl
@@ -794,20 +830,20 @@ function insertItemsInCart(itemsArr, carttotal) {
       <p class="cart-item-name">${data.item.name}</p>
 
       <div class="quantity-control">
-        <button class="quantity-btn minus-btn">
+        <button class="quantity-btn minus-btn" data-action="minus">
           <i class="fa-solid fa-minus"></i>
         </button>
 
         <span class="actual-quantity">${data.quantity}</span>
 
-        <button class="quantity-btn plus-btn">
+        <button class="quantity-btn plus-btn" data-action="add">
           <i class="fa-solid fa-plus"></i>
         </button>
       </div>
     </div>
 
     <div class="right-data">
-      <button class="delete-item">
+      <button class="delete-item" data-delete-id="${data.item.id}">
           <i class="fa-solid fa-trash"></i>
       </button>
     </div>
@@ -820,11 +856,15 @@ function insertItemsInCart(itemsArr, carttotal) {
       currency: "BRL",
     }).format(carttotal);
 
-    const totalPrice = document.querySelector(".total-price");
     totalPrice.textContent = priceFormatted;
+
+    finishOrder.disabled = false;
   } else {
     itemsContent.innerHTML = `
     <p class="empty-cart">Seu carrinho está vazio</p></div>`;
+
+    totalPrice.textContent = "R$ 0,00";
+    finishOrder.disabled = true;
   }
 }
 
@@ -851,7 +891,62 @@ async function openCartModal(token, cartId) {
 
     if (cart) {
       console.log(cart);
-      insertItemsInCart(cart?.items, cart?.total);
+      insertItemsInCart(cart?.items, cart?.total, token);
+
+      const itemsContent = document.querySelector(".cart-items");
+
+      itemsContent.addEventListener("click", async (ev) => {
+        const btn = ev.target.closest(".quantity-btn");
+        if (!btn) return;
+
+        const card = btn.closest(".card-item-cart");
+        const itemId = card.dataset.itemId;
+
+        const quantitySpan = card.querySelector(".actual-quantity");
+        let currentQuantity = Number(quantitySpan.textContent);
+
+        const action = btn.dataset.action;
+
+        if (action === "add") {
+          currentQuantity++;
+        }
+
+        if (action === "minus") {
+          if (currentQuantity <= 1) return;
+          currentQuantity--;
+        }
+
+        const data = await updateItemInCart(currentQuantity, itemId, token);
+        insertItemsInCart(data.items, data.total, token);
+      });
+
+      const finishOrder = document.querySelector(".checkout-btn");
+
+      const cuponInput = document.getElementById("cupon");
+      cuponInput.addEventListener("input", () => {
+        const value = cuponInput.value;
+        if (value.length > 0) {
+          finishOrder.textContent = "Aplicar cupon";
+          finishOrder.classList.remove("checkout-btn");
+          finishOrder.classList.add("cupon-btn");
+
+          cuponInput.classList.add("have-cupon");
+        } else {
+          finishOrder.textContent = "Finalizar pedido";
+          finishOrder.classList.remove("cupon-btn");
+          finishOrder.classList.add("checkout-btn");
+
+          cuponInput.classList.remove("have-cupon");
+        }
+      });
+
+      finishOrder.onclick = () => {
+        if (cuponInput.value > 0) {
+          // CHAMAR FUNÇÃO PARA VALIDAR CUPON
+        }
+
+        // CHAMAR FUNÇÃO PARA CRIAR ORDER
+      };
     }
   }
 }

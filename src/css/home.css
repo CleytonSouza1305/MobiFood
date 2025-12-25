@@ -1109,9 +1109,13 @@ form .submit-content {
 }
 
 .cupon-row input {
-  border: 1px solid var(--third-black-color);
+  border: 2px solid var(--third-black-color);
   border-radius: 4px;
   padding: .35rem .55rem;
+}
+
+input.have-cupon {
+  border-color: #2ecc71;
 }
 
 .price-row {
@@ -1124,20 +1128,36 @@ form .submit-content {
   color: #2ecc71;
 }
 
-.checkout-btn {
+.checkout-btn,
+.cupon-btn {
   margin-top: 8px;
   width: 100%;
   padding: 14px;
   border: none;
   border-radius: 8px;
 
-  background: #2ecc71;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
 
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.cupon-btn {
+  background-color: var(--primary-color);
+}
+
+.cupon-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.cupon-btn:active {
+  transform: scale(0.97);
+}
+
+.checkout-btn {
+  background: #2ecc71;
 }
 
 .checkout-btn:hover {
