@@ -859,6 +859,16 @@ function insertItemsInCart(itemsArr, carttotal, token) {
     totalPrice.textContent = priceFormatted;
 
     finishOrder.disabled = false;
+
+    const deleteItemBtn = document.querySelectorAll('.delete-item')
+      deleteItemBtn.forEach((btn) => {
+        btn.onclick = async (ev) => {
+          const itemId = ev.currentTarget.dataset.deleteId
+
+          const data = await deleteItemInCart(Number(itemId), token)
+          insertItemsInCart(data.items, data.total, token)
+        }
+      })
   } else {
     itemsContent.innerHTML = `
     <p class="empty-cart">Seu carrinho está vazio</p></div>`;
@@ -890,7 +900,6 @@ async function openCartModal(token, cartId) {
     const cart = await getCartDataReq(token, cartId);
 
     if (cart) {
-      console.log(cart);
       insertItemsInCart(cart?.items, cart?.total, token);
 
       const itemsContent = document.querySelector(".cart-items");

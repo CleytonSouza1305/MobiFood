@@ -1069,7 +1069,7 @@ form .submit-content {
   overflow-y: auto;
   margin-bottom: 148px;
   gap: 1rem;
-  padding-top: 1rem;
+  padding: 1rem 0;
   scrollbar-width: none;
 }
 
