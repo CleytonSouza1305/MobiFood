@@ -860,15 +860,15 @@ function insertItemsInCart(itemsArr, carttotal, token) {
 
     finishOrder.disabled = false;
 
-    const deleteItemBtn = document.querySelectorAll('.delete-item')
-      deleteItemBtn.forEach((btn) => {
-        btn.onclick = async (ev) => {
-          const itemId = ev.currentTarget.dataset.deleteId
+    const deleteItemBtn = document.querySelectorAll(".delete-item");
+    deleteItemBtn.forEach((btn) => {
+      btn.onclick = async (ev) => {
+        const itemId = ev.currentTarget.dataset.deleteId;
 
-          const data = await deleteItemInCart(Number(itemId), token)
-          insertItemsInCart(data.items, data.total, token)
-        }
-      })
+        const data = await deleteItemInCart(Number(itemId), token);
+        insertItemsInCart(data.items, data.total, token);
+      };
+    });
   } else {
     itemsContent.innerHTML = `
     <p class="empty-cart">Seu carrinho está vazio</p></div>`;
@@ -960,6 +960,44 @@ async function openCartModal(token, cartId) {
   }
 }
 
+async function couponRequest(token) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/coupons`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    messageAnimated(
+      error.message,
+      3000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
+async function openCouponModal(token) {
+  const coupons = await couponRequest(token)
+  console.log(coupons)
+}
+
 function itemsAsideAction(token, userData) {
   const items = document.querySelectorAll(".list-aside-item");
   items.forEach((i) => {
@@ -977,7 +1015,7 @@ function itemsAsideAction(token, userData) {
           break;
 
         case "Cupons":
-          alert("Cupons modal");
+          openCouponModal(token);
           break;
 
         default:
