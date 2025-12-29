@@ -206,14 +206,13 @@
       <p>Meu carrinho</p>
 
       <div class="cart-items">
-
         <p class="empty-cart">Seu carrinho está vazio</p>
       </div>
 
       <div class="bottom-infos">
         <div class="cupon-row">
           <label for="cupon">Aplicar cupon</label>
-          <input type="text" id="cupon" placeholder="Ex: CUPON10">
+          <input type="text" id="cupon" placeholder="Ex: CUPON10" />
         </div>
 
         <div class="price-row total">
@@ -223,6 +222,35 @@
 
         <button disabled class="checkout-btn">Finalizar pedido</button>
       </div>
+    </div>
+
+    <div class="coupon-modal">
+      <div class="calncel-content">
+        <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-header">
+        <h3>Ofertas para você</h3>
+        <p>Escolha um cupom e economize na sua próxima compra.</p>
+      </div>
+      <div class="coupon-filter">
+        <label class="filter-option">
+          <input type="radio" name="coupon-filter" id="isActive" checked />
+          <span>Disponíveis</span>
+        </label>
+
+        <label class="filter-option">
+          <input type="radio" name="coupon-filter" id="biggestDiscount" />
+          <span>Maior Desconto</span>
+        </label>
+
+        <label class="filter-option">
+          <input type="radio" name="coupon-filter" id="couponUsage" />
+          <span>Usados</span>
+        </label>
+      </div>
+
+      <div class="coupon-list"></div>
     </div>
 
     <script type="module" src="../js/home.js"></script>
