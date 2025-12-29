@@ -960,7 +960,52 @@ async function openCartModal(token, cartId) {
   }
 }
 
-async function couponRequest(token) {
+async function couponRequest(token, query) {
+  showLoader();
+  try {
+    let response;
+
+    if (!query) {
+      response = await fetch(`${BASE_URL}/api/coupons`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } else {
+      response = await fetch(`${BASE_URL}/api/coupons${query}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    messageAnimated(
+      error.message,
+      3000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
+async function couponRequestUsage(token) {
   showLoader();
   try {
     const response = await fetch(`${BASE_URL}/api/coupons`, {
@@ -993,9 +1038,158 @@ async function couponRequest(token) {
   }
 }
 
+function validatePromotionType(couponName) {
+  const name = couponName.toUpperCase();
+
+  if (name.includes("VIP") || name.includes("ESPECIAL")) {
+    return "#FFD700"; //
+  }
+
+  if (
+    name.includes("CORRA") ||
+    name.includes("QUENTE") ||
+    name.includes("OFERTA") ||
+    name.includes("PROMOCAO")
+  ) {
+    return "#FF4500";
+  }
+
+  if (
+    name.includes("COMIDA") ||
+    name.includes("SABOR") ||
+    name.includes("DELÍCIA") ||
+    name.includes("FOME")
+  ) {
+    return "#FF6B6B";
+  }
+
+  if (
+    name.includes("FRETE") ||
+    name.includes("ENTREGA") ||
+    name.includes("GRATIS")
+  ) {
+    return "#22a6b3";
+  }
+
+  if (
+    name.includes("VOLTA") ||
+    name.includes("SAUDADE") ||
+    name.includes("SUMIDO") ||
+    name.includes("SEXTOU") ||
+    name.includes("FESTA")
+  ) {
+    return "#a29bfe";
+  }
+
+  return "#C4C7C5";
+}
+
 async function openCouponModal(token) {
-  const coupons = await couponRequest(token)
-  console.log(coupons)
+  // const couponsDt = await couponRequest(token);
+
+  const [couponsDt, biggestDiscount, couponUsage] = await Promise.all([
+    couponRequest(token, "?is_active=true"),
+    couponRequest(token, "?sortBy=discountValue"),
+    couponRequestUsage(token),
+  ]);
+
+  const data = {
+    isActive: couponsDt.coupons,
+    biggestDiscount: biggestDiscount.coupons,
+    couponUsage: couponUsage.coupons,
+  };
+  console.log(data);
+
+  const modal = document.querySelector(".coupon-modal");
+  if (modal.classList.contains("active")) {
+    modal.classList.remove("active");
+  } else {
+    modal.classList.add("active");
+
+    const asideMenu = document.querySelector(".aside");
+    asideMenu.classList.remove("open");
+
+    const menu = document.querySelector(".menu");
+    const menuIcon = menu.querySelector("i");
+
+    menuIcon.classList.remove("fa-xmark");
+    menuIcon.classList.add("fa-bars");
+
+    const closeBtn = modal.querySelector(".close-modal");
+    closeBtn.onclick = () => modal.classList.remove("active");
+  }
+
+  const list = modal.querySelector(".coupon-list");
+  list.innerHTML = "";
+
+  couponsDt.coupons.forEach((cupon) => {
+    let value = "";
+    if (cupon.discountType === "FIXED") {
+      const valueCoupon = Number(cupon.discountValue)
+        .toFixed(2)
+        .replace(".", ",");
+      value = `R$ ${valueCoupon}`;
+    } else if (cupon.discountType === "PERCENTAGE") {
+      value = `${cupon.discountValue} %`;
+    } else if (cupon.discountType === "DELIVERY") {
+      value = "Frete Grátis";
+    }
+
+    const expirationDate = new Date(cupon.expiresAt).toLocaleDateString(
+      "pt-BR",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }
+    );
+
+    list.innerHTML += `
+      <div style="background-color: ${validatePromotionType(
+        cupon.couponName
+      )}" class="special-content">
+       <div class="coupon-card">
+        <div class="coupon-info">
+          <span style="background-color: ${validatePromotionType(
+            cupon.couponName
+          )}" class="coupon-name">
+            ${cupon.couponName}
+          </span>
+          <p class="coupon-description">${cupon.description}</p>
+          <span class="expires-at"> - Expira em: ${expirationDate}</span>
+        </div>
+
+        <div class="coupon-value">
+          <span class="value">${value}</span>
+          <button 
+            style="background-color: ${validatePromotionType(cupon.couponName)}" 
+            class="copy-button" 
+            data-coupon="${cupon.code}">
+              <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+       </div>
+      </div>
+    `;
+  });
+
+  const copyBtn = document.querySelectorAll('.copy-button')
+  copyBtn.forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
+      const couponCode = ev.currentTarget.dataset.coupon
+      navigator.clipboard.writeText(couponCode) 
+      messageAnimated(
+      `Cupon "${couponCode}" copiado com sucesso!`,
+      3000,
+      "top",
+      "right",
+      "12px",
+      "#107af4",
+      "#fff",
+      "500"
+    );
+    })
+  })
 }
 
 function itemsAsideAction(token, userData) {
