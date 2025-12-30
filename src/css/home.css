@@ -1018,7 +1018,7 @@ form .submit-content {
   background: var(--secondary-color);
 }
 
-#add-product {
+.add-product {
   display: flex;
   align-items: center;
 }
