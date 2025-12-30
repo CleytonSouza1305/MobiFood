@@ -1104,6 +1104,26 @@ function createCouponCard(couponArr, listHtml) {
   </div>
 `;
     });
+
+    const copyBtn = document.querySelectorAll(".enable-btn");
+    copyBtn.forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        const couponCode = ev.currentTarget.dataset.coupon;
+        const couponName = ev.currentTarget.dataset.couponName;
+
+        navigator.clipboard.writeText(couponCode);
+        messageAnimated(
+          `Cupon "${couponName}" copiado com sucesso!`,
+          3000,
+          "top",
+          "right",
+          "12px",
+          "#107af4",
+          "#fff",
+          "500"
+        );
+      });
+    });
   } else {
     listHtml.innerHTML = `<p class="no-have-coupons">Não há cupons disponíveis no momento.<p/>`;
   }
@@ -1144,6 +1164,7 @@ async function openCouponModal(token, userId) {
   createCouponCard(data.isActive, list);
 
   const filterBtns = document.querySelectorAll(".input-filter");
+  filterBtns[0].checked = true
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", (ev) => {
       const filter = ev.currentTarget.value;
@@ -1161,26 +1182,6 @@ async function openCouponModal(token, userId) {
           createCouponCard(data.isActive, list);
           break;
       }
-    });
-  });
-
-  const copyBtn = document.querySelectorAll(".enable-btn");
-  copyBtn.forEach((btn) => {
-    btn.addEventListener("click", (ev) => {
-      const couponCode = ev.currentTarget.dataset.coupon;
-      const couponName = ev.currentTarget.dataset.couponName;
-
-      navigator.clipboard.writeText(couponCode);
-      messageAnimated(
-        `Cupon "${couponName}" copiado com sucesso!`,
-        3000,
-        "top",
-        "right",
-        "12px",
-        "#107af4",
-        "#fff",
-        "500"
-      );
     });
   });
 }
