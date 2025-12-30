@@ -878,6 +878,37 @@ function insertItemsInCart(itemsArr, carttotal, token) {
   }
 }
 
+async function validateCoupon(couponCode, token) {
+  showLoader();
+  const input = document.getElementById("cupon");
+  const errorTxt = document.querySelector(".error-txt-cupon");
+  try {
+    const response = await fetch(`${BASE_URL}/api/coupons/${couponCode}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    if (input) {
+      input.classList.add("error-cupon");
+      if (errorTxt) {
+        errorTxt.textContent = error.message;
+      }
+    }
+  } finally {
+    hideLoader();
+  }
+}
+
 async function openCartModal(token, cartId) {
   const modal = document.querySelector(".cart-modal");
   if (modal.classList.contains("active")) {
@@ -935,6 +966,17 @@ async function openCartModal(token, cartId) {
       cuponInput.addEventListener("input", () => {
         const value = cuponInput.value;
         if (value.length > 0) {
+          const input = document.getElementById("cupon");
+          const errorTxt = document.querySelector(".error-txt-cupon");
+
+          if (input) {
+            input.classList.remove("error-cupon");
+
+            if (errorTxt) {
+              errorTxt.textContent = "";
+            }
+          }
+
           finishOrder.textContent = "Aplicar cupon";
           finishOrder.classList.remove("checkout-btn");
           finishOrder.classList.add("cupon-btn");
@@ -949,9 +991,12 @@ async function openCartModal(token, cartId) {
         }
       });
 
-      finishOrder.onclick = () => {
-        if (cuponInput.value > 0) {
-          // CHAMAR FUNÇÃO PARA VALIDAR CUPON
+      finishOrder.onclick = async () => {
+        if (cuponInput.value.length > 0) {
+          const isValid = validateCoupon(cuponInput.value, token);
+          if (!isValid) return;
+
+          // SE FOR VÁLIDO, APLICAR O CUPON
         }
 
         // CHAMAR FUNÇÃO PARA CRIAR ORDER

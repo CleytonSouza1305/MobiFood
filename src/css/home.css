@@ -1104,10 +1104,21 @@ form .submit-content {
 .cupon-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
 
   font-size: 14px;
   color: var(--third-black-color);
+}
+
+.cupon-row div {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.cupon-row div span {
+  color: rgb(255, 34, 34);
+  font-weight: 500;
 }
 
 .cupon-row input {
@@ -1118,6 +1129,10 @@ form .submit-content {
 
 input.have-cupon {
   border-color: #2ecc71;
+}
+
+input.error-cupon {
+  border-color: #FF0000;
 }
 
 .price-row {
