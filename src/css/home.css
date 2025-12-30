@@ -1249,7 +1249,7 @@ input.have-cupon {
 }
 
 .coupon-modal {
-  padding: .5rem;
+  padding: 0.5rem;
   width: 390px;
 }
 
@@ -1278,7 +1278,7 @@ input.have-cupon {
 }
 
 .filter-option input {
-  display: none; 
+  display: none;
 }
 
 .filter-option span {
@@ -1313,7 +1313,7 @@ input.have-cupon {
   width: 100%;
   min-height: 110px;
   border-radius: 12px;
-  padding-left: 10px; 
+  padding-left: 10px;
   margin-bottom: 16px;
   overflow: hidden;
   display: flex;
@@ -1321,7 +1321,7 @@ input.have-cupon {
 }
 
 .special-content .coupon-card {
-  background-color: var(--secunday-black-color); 
+  background-color: var(--secunday-black-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1344,13 +1344,13 @@ input.have-cupon {
   padding: 3px 10px;
   border-radius: 4px;
   text-transform: uppercase;
-  color: #ffffff; 
+  color: #ffffff;
 }
 
 .coupon-description {
   font-size: 14px;
   font-weight: 500;
-  color: var(--secunday-white-color); 
+  color: var(--secunday-white-color);
   margin: 0;
   line-height: 1.2;
 }
@@ -1367,7 +1367,7 @@ input.have-cupon {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border-left: 2px dashed var(--third-black-color); 
+  border-left: 2px dashed var(--third-black-color);
   padding-left: 15px;
   margin-left: 10px;
   min-width: 80px;
@@ -1377,7 +1377,7 @@ input.have-cupon {
   border: 2px solid var(--primary-color);
   background-color: #bed3ea;
   border-radius: 999px;
-  padding: .35rem .55rem;
+  padding: 0.35rem 0.55rem;
   font-size: 18px;
   font-weight: 900;
   color: var(--white-color);
@@ -1400,7 +1400,7 @@ input.have-cupon {
 
 .copy-button:disabled {
   background-color: #828282;
-      cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 .disabled-icon {
@@ -1414,6 +1414,20 @@ input.have-cupon {
 .copy-button i {
   color: #fff;
   font-size: 16px;
+}
+
+p.no-have-coupons {
+  color: #999;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-top: 30%;
+}
+
+.copy-button:disabled.utilized-btn {
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 @media (max-width: 420px) {

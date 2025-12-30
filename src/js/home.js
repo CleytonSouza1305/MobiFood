@@ -960,55 +960,10 @@ async function openCartModal(token, cartId) {
   }
 }
 
-async function couponRequest(token, query) {
+async function couponRequest(token, request) {
   showLoader();
   try {
-    let response;
-
-    if (!query) {
-      response = await fetch(`${BASE_URL}/api/coupons`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } else {
-      response = await fetch(`${BASE_URL}/api/coupons${query}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    }
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    return data;
-  } catch (error) {
-    messageAnimated(
-      error.message,
-      3000,
-      "top",
-      "right",
-      "12px",
-      "rgb(198, 48, 48)",
-      "#fff",
-      "500"
-    );
-  } finally {
-    hideLoader();
-  }
-}
-
-async function couponRequestUsage(token) {
-  showLoader();
-  try {
-    const response = await fetch(`${BASE_URL}/api/coupons`, {
+    const response = await fetch(`${BASE_URL}/${request}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -1087,80 +1042,83 @@ function validatePromotionType(couponName) {
 function createCouponCard(couponArr, listHtml) {
   listHtml.innerHTML = "";
 
-  console.log(couponArr)
-
-  couponArr.forEach((cupon) => {
-    let value = "";
-    if (cupon.discountType === "FIXED") {
-      const valueCoupon = Number(cupon.discountValue)
-        .toFixed(2)
-        .replace(".", ",");
-      value = `R$ ${valueCoupon}`;
-    } else if (cupon.discountType === "PERCENTAGE") {
-      value = `${cupon.discountValue}% OFF`;
-    } else if (cupon.discountType === "DELIVERY") {
-      value = "Frete Grátis";
-    }
-
-    const expirationDate = new Date(cupon.expiresAt).toLocaleDateString(
-      "pt-BR",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+  if (couponArr && couponArr.length > 0) {
+    couponArr.forEach((cupon) => {
+      let value = "";
+      if (cupon.discountType === "FIXED") {
+        const valueCoupon = Number(cupon.discountValue)
+          .toFixed(2)
+          .replace(".", ",");
+        value = `R$ ${valueCoupon}`;
+      } else if (cupon.discountType === "PERCENTAGE") {
+        value = `${cupon.discountValue}% OFF`;
+      } else if (cupon.discountType === "DELIVERY") {
+        value = "Frete Grátis";
       }
-    );
 
-    listHtml.innerHTML += `
-      <div style="background-color: ${validatePromotionType(
-        cupon.couponName
-      )}" class="special-content">
-       <div class="coupon-card">
-        <div class="coupon-info">
-          <span style="background-color: ${validatePromotionType(
-            cupon.couponName
-          )}" class="coupon-name">
-            ${cupon.couponName}
-          </span>
-          <p class="coupon-description">${cupon.description}</p>
-          <span class="expires-at"> - Expira em: ${expirationDate}</span>
-        </div>
+      const expirationDate = new Date(cupon.expiresAt).toLocaleDateString(
+        "pt-BR",
+        {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }
+      );
 
-        <div class="coupon-value">
-          <span class="value">${value}</span>
+      const isAlreadyUsed = Boolean(cupon.usage_at);
+      const promoColor = validatePromotionType(cupon.couponName);
 
-          ${
-            cupon.is_active
-              ? `<button 
-            style="background-color: ${validatePromotionType(
-              cupon.couponName
-            )}" 
-            class="copy-button enable-btn" 
-            data-coupon="${cupon.code}" data-coupon-name="${cupon.couponName}">
-              <i class="fa-regular fa-copy"></i>
-          </button>`
-              : `<button disabled class="copy-button disabled-icon">
-                <i class="fa-regular fa-copy"></i>
-              </button>`
-          }
-        </div>
-       </div>
+      listHtml.innerHTML += `
+  <div style="background-color: ${promoColor}" class="special-content">
+    <div class="coupon-card">
+      <div class="coupon-info">
+        <span style="background-color: ${promoColor}" class="coupon-name">
+          ${cupon.couponName}
+        </span>
+        <p class="coupon-description">${cupon.description}</p>
+        <span class="expires-at"> - Expira em: ${expirationDate}</span>
       </div>
-    `;
-  });
+
+      <div class="coupon-value">
+        <span class="value">${value}</span>
+
+        ${
+          isAlreadyUsed
+            ? `<button disabled class="copy-button disabled-icon utilized-btn">
+         <span>Utilizado</span>
+       </button>`
+            : cupon.is_active
+            ? `<button 
+          style="background-color: ${promoColor}" 
+          class="copy-button enable-btn" 
+          data-coupon="${cupon.code}" 
+          data-coupon-name="${cupon.couponName}">
+            <i class="fa-regular fa-copy"></i>
+        </button>`
+            : `<button disabled class="copy-button disabled-icon">
+          <i class="fa-regular fa-copy"></i>
+        </button>`
+        }
+      </div>
+    </div>
+  </div>
+`;
+    });
+  } else {
+    listHtml.innerHTML = `<p class="no-have-coupons">Não há cupons disponíveis no momento.<p/>`;
+  }
 }
 
-async function openCouponModal(token) {
+async function openCouponModal(token, userId) {
   const [couponsDt, biggestDiscount, couponUsage] = await Promise.all([
-    couponRequest(token, "?is_active=true"),
-    couponRequest(token, "?sortBy=discountValue&order=desc"),
-    couponRequestUsage(token),
+    couponRequest(token, "api/coupons?is_active=true"),
+    couponRequest(token, "api/coupons?sortBy=discountValue&order=desc"),
+    couponRequest(token, `api/coupons/usage/${userId}`),
   ]);
-
   const data = {
     isActive: couponsDt.coupons,
     biggestDiscount: biggestDiscount.coupons,
-    couponUsage: couponUsage.coupons,
+    couponUsage: couponUsage,
   };
 
   const modal = document.querySelector(".coupon-modal");
@@ -1182,29 +1140,29 @@ async function openCouponModal(token) {
     closeBtn.onclick = () => modal.classList.remove("active");
   }
 
-  const list = modal.querySelector(".coupon-list")
-  createCouponCard(data.isActive, list)
+  const list = modal.querySelector(".coupon-list");
+  createCouponCard(data.isActive, list);
 
-  const filterBtns = document.querySelectorAll('.input-filter')
+  const filterBtns = document.querySelectorAll(".input-filter");
   filterBtns.forEach((btn) => {
-    btn.addEventListener('click', (ev) => {
-      const filter = ev.currentTarget.value
+    btn.addEventListener("click", (ev) => {
+      const filter = ev.currentTarget.value;
 
       switch (filter) {
-        case 'biggestDiscount':
-            createCouponCard(data.biggestDiscount, list)
+        case "biggestDiscount":
+          createCouponCard(data.biggestDiscount, list);
           break;
 
-        case 'usaged':
-            createCouponCard(data.couponUsage, list)
+        case "usaged":
+          createCouponCard(data.couponUsage, list);
           break;
-      
+
         default:
-            createCouponCard(data.isActive, list)
+          createCouponCard(data.isActive, list);
           break;
       }
-    })
-  })
+    });
+  });
 
   const copyBtn = document.querySelectorAll(".enable-btn");
   copyBtn.forEach((btn) => {
@@ -1244,7 +1202,7 @@ function itemsAsideAction(token, userData) {
           break;
 
         case "Cupons":
-          openCouponModal(token);
+          openCouponModal(token, userData.id);
           break;
 
         default:
