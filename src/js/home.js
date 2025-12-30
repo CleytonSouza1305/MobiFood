@@ -1081,15 +1081,79 @@ function validatePromotionType(couponName) {
     return "#a29bfe";
   }
 
-  return "#C4C7C5";
+  return "#969696ff";
+}
+
+function createCouponCard(couponArr, listHtml) {
+  listHtml.innerHTML = "";
+
+  console.log(couponArr)
+
+  couponArr.forEach((cupon) => {
+    let value = "";
+    if (cupon.discountType === "FIXED") {
+      const valueCoupon = Number(cupon.discountValue)
+        .toFixed(2)
+        .replace(".", ",");
+      value = `R$ ${valueCoupon}`;
+    } else if (cupon.discountType === "PERCENTAGE") {
+      value = `${cupon.discountValue}% OFF`;
+    } else if (cupon.discountType === "DELIVERY") {
+      value = "Frete Grátis";
+    }
+
+    const expirationDate = new Date(cupon.expiresAt).toLocaleDateString(
+      "pt-BR",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }
+    );
+
+    listHtml.innerHTML += `
+      <div style="background-color: ${validatePromotionType(
+        cupon.couponName
+      )}" class="special-content">
+       <div class="coupon-card">
+        <div class="coupon-info">
+          <span style="background-color: ${validatePromotionType(
+            cupon.couponName
+          )}" class="coupon-name">
+            ${cupon.couponName}
+          </span>
+          <p class="coupon-description">${cupon.description}</p>
+          <span class="expires-at"> - Expira em: ${expirationDate}</span>
+        </div>
+
+        <div class="coupon-value">
+          <span class="value">${value}</span>
+
+          ${
+            cupon.is_active
+              ? `<button 
+            style="background-color: ${validatePromotionType(
+              cupon.couponName
+            )}" 
+            class="copy-button enable-btn" 
+            data-coupon="${cupon.code}" data-coupon-name="${cupon.couponName}">
+              <i class="fa-regular fa-copy"></i>
+          </button>`
+              : `<button disabled class="copy-button disabled-icon">
+                <i class="fa-regular fa-copy"></i>
+              </button>`
+          }
+        </div>
+       </div>
+      </div>
+    `;
+  });
 }
 
 async function openCouponModal(token) {
-  // const couponsDt = await couponRequest(token);
-
   const [couponsDt, biggestDiscount, couponUsage] = await Promise.all([
     couponRequest(token, "?is_active=true"),
-    couponRequest(token, "?sortBy=discountValue"),
+    couponRequest(token, "?sortBy=discountValue&order=desc"),
     couponRequestUsage(token),
   ]);
 
@@ -1098,7 +1162,6 @@ async function openCouponModal(token) {
     biggestDiscount: biggestDiscount.coupons,
     couponUsage: couponUsage.coupons,
   };
-  console.log(data);
 
   const modal = document.querySelector(".coupon-modal");
   if (modal.classList.contains("active")) {
@@ -1119,77 +1182,49 @@ async function openCouponModal(token) {
     closeBtn.onclick = () => modal.classList.remove("active");
   }
 
-  const list = modal.querySelector(".coupon-list");
-  list.innerHTML = "";
+  const list = modal.querySelector(".coupon-list")
+  createCouponCard(data.isActive, list)
 
-  couponsDt.coupons.forEach((cupon) => {
-    let value = "";
-    if (cupon.discountType === "FIXED") {
-      const valueCoupon = Number(cupon.discountValue)
-        .toFixed(2)
-        .replace(".", ",");
-      value = `R$ ${valueCoupon}`;
-    } else if (cupon.discountType === "PERCENTAGE") {
-      value = `${cupon.discountValue} %`;
-    } else if (cupon.discountType === "DELIVERY") {
-      value = "Frete Grátis";
-    }
-
-    const expirationDate = new Date(cupon.expiresAt).toLocaleDateString(
-      "pt-BR",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }
-    );
-
-    list.innerHTML += `
-      <div style="background-color: ${validatePromotionType(
-        cupon.couponName
-      )}" class="special-content">
-       <div class="coupon-card">
-        <div class="coupon-info">
-          <span style="background-color: ${validatePromotionType(
-            cupon.couponName
-          )}" class="coupon-name">
-            ${cupon.couponName}
-          </span>
-          <p class="coupon-description">${cupon.description}</p>
-          <span class="expires-at"> - Expira em: ${expirationDate}</span>
-        </div>
-
-        <div class="coupon-value">
-          <span class="value">${value}</span>
-          <button 
-            style="background-color: ${validatePromotionType(cupon.couponName)}" 
-            class="copy-button" 
-            data-coupon="${cupon.code}">
-              <i class="fa-regular fa-copy"></i>
-          </button>
-        </div>
-       </div>
-      </div>
-    `;
-  });
-
-  const copyBtn = document.querySelectorAll('.copy-button')
-  copyBtn.forEach((btn) => {
+  const filterBtns = document.querySelectorAll('.input-filter')
+  filterBtns.forEach((btn) => {
     btn.addEventListener('click', (ev) => {
-      const couponCode = ev.currentTarget.dataset.coupon
-      navigator.clipboard.writeText(couponCode) 
-      messageAnimated(
-      `Cupon "${couponCode}" copiado com sucesso!`,
-      3000,
-      "top",
-      "right",
-      "12px",
-      "#107af4",
-      "#fff",
-      "500"
-    );
+      const filter = ev.currentTarget.value
+
+      switch (filter) {
+        case 'biggestDiscount':
+            createCouponCard(data.biggestDiscount, list)
+          break;
+
+        case 'usaged':
+            createCouponCard(data.couponUsage, list)
+          break;
+      
+        default:
+            createCouponCard(data.isActive, list)
+          break;
+      }
     })
   })
+
+  const copyBtn = document.querySelectorAll(".enable-btn");
+  copyBtn.forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const couponCode = ev.currentTarget.dataset.coupon;
+      const couponName = ev.currentTarget.dataset.couponName;
+
+      navigator.clipboard.writeText(couponCode);
+      messageAnimated(
+        `Cupon "${couponName}" copiado com sucesso!`,
+        3000,
+        "top",
+        "right",
+        "12px",
+        "#107af4",
+        "#fff",
+        "500"
+      );
+    });
+  });
 }
 
 function itemsAsideAction(token, userData) {

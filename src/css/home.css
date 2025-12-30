@@ -1398,8 +1398,16 @@ input.have-cupon {
   justify-content: center;
 }
 
+.copy-button:disabled {
+  background-color: #828282;
+      cursor: not-allowed;
+}
+
+.disabled-icon {
+  color: #fff;
+}
+
 .copy-button:hover {
-  background-color: var(--primary-color);
   transform: translateY(-2px);
 }
 
