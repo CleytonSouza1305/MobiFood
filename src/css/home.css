@@ -1033,7 +1033,7 @@ form .submit-content {
 .cart-modal,
 .coupon-modal {
   position: fixed;
-  width: 350px;
+  width: 450px;
   height: 550px;
   right: 0;
   top: 5px;
@@ -1265,7 +1265,7 @@ input.error-cupon {
 
 .coupon-modal {
   padding: 0.5rem;
-  width: 390px;
+  width: 450px;
 }
 
 .coupon-modal h3 {

@@ -961,45 +961,51 @@ async function openCartModal(token, cartId) {
       });
 
       const finishOrder = document.querySelector(".checkout-btn");
-
       const cuponInput = document.getElementById("cupon");
+      const errorTxt = document.querySelector(".error-txt-cupon");
+
       cuponInput.addEventListener("input", () => {
-        const value = cuponInput.value;
+        const value = cuponInput.value.trim();
+
         if (value.length > 0) {
-          const input = document.getElementById("cupon");
-          const errorTxt = document.querySelector(".error-txt-cupon");
-
-          if (input) {
-            input.classList.remove("error-cupon");
-
-            if (errorTxt) {
-              errorTxt.textContent = "";
-            }
-          }
-
-          finishOrder.textContent = "Aplicar cupon";
-          finishOrder.classList.remove("checkout-btn");
-          finishOrder.classList.add("cupon-btn");
-
+          finishOrder.textContent = "Aplicar Cupom";
+          finishOrder.classList.replace("checkout-btn", "cupon-btn");
           cuponInput.classList.add("have-cupon");
         } else {
-          finishOrder.textContent = "Finalizar pedido";
-          finishOrder.classList.remove("cupon-btn");
-          finishOrder.classList.add("checkout-btn");
-
+          finishOrder.textContent = "Finalizar Pedido";
+          finishOrder.classList.replace("cupon-btn", "checkout-btn");
           cuponInput.classList.remove("have-cupon");
         }
+
+        cuponInput.classList.remove("error-cupon");
+        if (errorTxt) errorTxt.textContent = "";
       });
 
       finishOrder.onclick = async () => {
-        if (cuponInput.value.length > 0) {
-          const isValid = validateCoupon(cuponInput.value, token);
-          if (!isValid) return;
+        const couponCode = cuponInput.value.trim();
 
-          // SE FOR VÁLIDO, APLICAR O CUPON
+        if (couponCode.length > 0) {
+          const result = await validateCoupon(couponCode, token);
+
+          if (!result) return;
+          messageAnimated(
+            `Cupon "${result.couponName}" aplicado!`,
+            2000,
+            "top",
+            "right",
+            "12px",
+            "#107af4",
+            "#fff",
+            "500"
+          );
+
+          finishOrder.textContent = "Finalizar Pedido";
+          finishOrder.classList.replace("cupon-btn", "checkout-btn");
+
+          return;
         }
 
-        // CHAMAR FUNÇÃO PARA CRIAR ORDER
+        console.log("Chamando função para criar pedido...");
       };
     }
   }
@@ -1159,7 +1165,7 @@ function createCouponCard(couponArr, listHtml) {
         navigator.clipboard.writeText(couponCode);
         messageAnimated(
           `Cupon "${couponName}" copiado com sucesso!`,
-          3000,
+          2000,
           "top",
           "right",
           "12px",
@@ -1209,7 +1215,7 @@ async function openCouponModal(token, userId) {
   createCouponCard(data.isActive, list);
 
   const filterBtns = document.querySelectorAll(".input-filter");
-  filterBtns[0].checked = true
+  filterBtns[0].checked = true;
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", (ev) => {
       const filter = ev.currentTarget.value;
