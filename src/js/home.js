@@ -1186,11 +1186,24 @@ async function openCouponModal(token, userId) {
     couponRequest(token, "api/coupons?sortBy=discountValue&order=desc"),
     couponRequest(token, `api/coupons/usage/${userId}`),
   ]);
+
   const data = {
     isActive: couponsDt.coupons,
     biggestDiscount: biggestDiscount.coupons,
     couponUsage: couponUsage,
   };
+
+  const isActiveNotUtilized = data.isActive.filter((cupomAtivo) => {
+    return !data.couponUsage.some(
+      (cupomUsado) => cupomUsado.id === cupomAtivo.id
+    );
+  });
+
+  const biggestDiscountNotUtilized = data.biggestDiscount.filter((cupomAtivo) => {
+    return !data.couponUsage.some(
+      (cupomUsado) => cupomUsado.id === cupomAtivo.id
+    );
+  });
 
   const modal = document.querySelector(".coupon-modal");
   if (modal.classList.contains("active")) {
@@ -1212,7 +1225,7 @@ async function openCouponModal(token, userId) {
   }
 
   const list = modal.querySelector(".coupon-list");
-  createCouponCard(data.isActive, list);
+  createCouponCard(isActiveNotUtilized, list);
 
   const filterBtns = document.querySelectorAll(".input-filter");
   filterBtns[0].checked = true;
@@ -1222,7 +1235,7 @@ async function openCouponModal(token, userId) {
 
       switch (filter) {
         case "biggestDiscount":
-          createCouponCard(data.biggestDiscount, list);
+          createCouponCard(biggestDiscountNotUtilized, list);
           break;
 
         case "usaged":
@@ -1230,7 +1243,7 @@ async function openCouponModal(token, userId) {
           break;
 
         default:
-          createCouponCard(data.isActive, list);
+          createCouponCard(isActiveNotUtilized, list);
           break;
       }
     });
