@@ -1038,7 +1038,7 @@ form .submit-content {
   right: 0;
   top: 5px;
   border-radius: 8px;
-  background-color: #000;
+  background-color: var(--white-color);
   z-index: 10;
   box-shadow: -2px 0 12px var(--third-black-color);
   transform: translateX(100%);
@@ -1280,7 +1280,7 @@ input.error-cupon {
 
 .coupon-modal .modal-header p {
   margin: 0.5rem 0;
-  color: #ccc;
+  color: var(--black-color);
 }
 
 .coupon-filter {
