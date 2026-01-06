@@ -1048,7 +1048,7 @@ function validatePromotionType(couponName) {
   const name = couponName.toUpperCase();
 
   if (name.includes("VIP") || name.includes("ESPECIAL")) {
-    return "#FFD700"; //
+    return "#c2a608ff"; //
   }
 
   if (
@@ -1182,8 +1182,8 @@ function createCouponCard(couponArr, listHtml) {
 
 async function openCouponModal(token, userId) {
   const [couponsDt, biggestDiscount, couponUsage] = await Promise.all([
-    couponRequest(token, "api/coupons?is_active=true"),
-    couponRequest(token, "api/coupons?sortBy=discountValue&order=desc"),
+    couponRequest(token, "api/coupons/avaliable?is_active=true"),
+    couponRequest(token, "api/coupons/avaliable?sortBy=discountValue&order=desc"),
     couponRequest(token, `api/coupons/usage/${userId}`),
   ]);
 
