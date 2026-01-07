@@ -446,7 +446,7 @@ ul .address-list-item button {
 }
 
 .modal-confirm-btn:hover {
-  background: #c72c3b;
+  background: var(--green-color);
 }
 
 section {

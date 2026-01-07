@@ -810,7 +810,7 @@ async function deleteItemInCart(itemId, token) {
 function insertItemsInCart(itemsArr, carttotal, token) {
   const itemsContent = document.querySelector(".cart-items");
   const totalPrice = document.querySelector(".total-price");
-  const finishOrder = document.querySelector(".checkout-btn");
+  const finishOrder = document.querySelector(".finish-order");
 
   if (itemsArr && itemsArr.length > 0) {
     itemsContent.innerHTML = "";
@@ -999,13 +999,28 @@ async function openCartModal(token, cartId) {
             "500"
           );
 
+          if (
+            result.discountType === "FIXED" ||
+            result.discountType === "PERCENTAGE"
+          ) {
+            applyCouponVisually(
+              +cart.total,
+              result.discountType,
+              +result.discountValue
+            );
+          }
+
           finishOrder.textContent = "Finalizar Pedido";
           finishOrder.classList.replace("cupon-btn", "checkout-btn");
-
+          cuponInput.value = "";
           return;
-        }
+        } 
 
-        console.log("Chamando função para criar pedido...");
+        openModal("Deseja confirmar pedido?") 
+        confirmBtn.addEventListener("click", () => {
+          console.log('Chamando...')
+          closeModal();
+        });
       };
     }
   }
@@ -1180,10 +1195,58 @@ function createCouponCard(couponArr, listHtml) {
   }
 }
 
+function applyCouponVisually(orderTotal, discoutType, discountValue) {
+  const params = {
+    total: Number(orderTotal),
+    value: Number(discountValue),
+    type: discoutType,
+  };
+
+  let discountedPrice = 0;
+
+  if (discoutType === "PERCENTAGE") {
+    const discount = params.total * (params.value / 100);
+    discountedPrice = params.total - discount;
+    if (discount < 0) {
+      discountedPrice = 0;
+    }
+  } else if (discoutType === "FIXED") {
+    const discount = params.total - params.value;
+    discountedPrice = discount;
+    if (discount < 0) {
+      discountedPrice = 0;
+    }
+  }
+
+  const price = discountedPrice.toFixed(2);
+  const priceFormatted = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(price);
+
+  const totalOrderFormated = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(params.total);
+
+  const spanFinalOrder = document.querySelector(".total-price");
+
+  if (!spanFinalOrder) return;
+
+  spanFinalOrder.innerHTML = `
+  De <del style="color: #c63030;">${totalOrderFormated}</del> por <strong>R$ ${priceFormatted}</strong>
+`;
+
+  return price;
+}
+
 async function openCouponModal(token, userId) {
   const [couponsDt, biggestDiscount, couponUsage] = await Promise.all([
     couponRequest(token, "api/coupons/avaliable?is_active=true"),
-    couponRequest(token, "api/coupons/avaliable?sortBy=discountValue&order=desc"),
+    couponRequest(
+      token,
+      "api/coupons/avaliable?sortBy=discountValue&order=desc"
+    ),
     couponRequest(token, `api/coupons/usage/${userId}`),
   ]);
 
@@ -1199,11 +1262,13 @@ async function openCouponModal(token, userId) {
     );
   });
 
-  const biggestDiscountNotUtilized = data.biggestDiscount.filter((cupomAtivo) => {
-    return !data.couponUsage.some(
-      (cupomUsado) => cupomUsado.id === cupomAtivo.id
-    );
-  });
+  const biggestDiscountNotUtilized = data.biggestDiscount.filter(
+    (cupomAtivo) => {
+      return !data.couponUsage.some(
+        (cupomUsado) => cupomUsado.id === cupomAtivo.id
+      );
+    }
+  );
 
   const modal = document.querySelector(".coupon-modal");
   if (modal.classList.contains("active")) {
