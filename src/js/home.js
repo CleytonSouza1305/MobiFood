@@ -1749,9 +1749,33 @@ function messageAnimated(
   }).showToast();
 }
 
-async function startApp(user, token) {
-  console.log(user);
+async function capturarEnderecoAutomatico(token) {
+  if (!navigator.geolocation) return alert("Geolocalização não suportada.");
 
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude, longitude } = pos.coords;
+
+    try {
+      const response = await fetch(`${BASE_URL}/auth/reverse-geocoding`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+         },
+        body: JSON.stringify({ latitude, longitude })
+      });
+
+      const data = await response.json();
+      return data
+      
+    } catch (error) {
+      console.error("Erro ao converter coordenadas:", error);
+    }
+  });
+}
+
+async function startApp(user, token) {
+  console.log(user)
   switchUserTheme(user.favoriteTheme);
   insertUserData(user, token);
   openMobileMenu();
@@ -1848,11 +1872,17 @@ async function validateToken() {
   if (!token) {
     location.href = "../../index.html";
   } else {
-    const user = await me(token);
+    const [user, location] = await Promise.all([
+      me(token), capturarEnderecoAutomatico(token)
+    ])
     if (!user) {
       localStorage.removeItem("token");
       location.href = "../../index.html";
     } else {
+      const userData = {
+        ...user,
+        location
+      }
       startApp(user, token);
     }
   }
@@ -1861,3 +1891,4 @@ async function validateToken() {
 document.addEventListener("DOMContentLoaded", () => {
   validateToken();
 });
+
