@@ -1199,11 +1199,13 @@ async function openCouponModal(token, userId) {
     );
   });
 
-  const biggestDiscountNotUtilized = data.biggestDiscount.filter((cupomAtivo) => {
-    return !data.couponUsage.some(
-      (cupomUsado) => cupomUsado.id === cupomAtivo.id
-    );
-  });
+  const biggestDiscountNotUtilized = data.biggestDiscount.filter(
+    (cupomAtivo) => {
+      return !data.couponUsage.some(
+        (cupomUsado) => cupomUsado.id === cupomAtivo.id
+      );
+    }
+  );
 
   const modal = document.querySelector(".coupon-modal");
   if (modal.classList.contains("active")) {
@@ -1692,7 +1694,11 @@ async function startApp(user, token) {
   openMobileMenu();
   createContentRestaurant(token);
   itemsAsideAction(token, user);
+  searchRestaurant(token)
+  logout();
+}
 
+function searchRestaurant(token) {
   const searchInput = document.getElementById("query");
   let searchTimeout;
 
@@ -1754,6 +1760,16 @@ async function startApp(user, token) {
         createContentRestaurant(token);
       }
     }, 1500);
+  });
+}
+
+function logout() {
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    localStorage.removeItem("token");
+    location.href = "../../index.html";
   });
 }
 
