@@ -1018,8 +1018,9 @@ async function openCartModal(token, cartId) {
 
         openModal("Deseja confirmar pedido?") 
         confirmBtn.addEventListener("click", () => {
-          console.log('Chamando...')
           closeModal();
+          console.log('Chamando...')
+          // CHAMAR FUNÇÃO PARA CRIAR ORDER
         });
       };
     }
@@ -1887,17 +1888,11 @@ async function validateToken() {
   if (!token) {
     location.href = "../../index.html";
   } else {
-    const [user, location] = await Promise.all([
-      me(token), getCurrentAddressByGoogleMaps(token)
-    ])
+    const user = await me(token)
     if (!user) {
       localStorage.removeItem("token");
       location.href = "../../index.html";
     } else {
-      const userData = {
-        ...user,
-        location
-      }
       startApp(user, token);
     }
   }
