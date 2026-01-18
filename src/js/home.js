@@ -1749,11 +1749,12 @@ function messageAnimated(
   }).showToast();
 }
 
-async function capturarEnderecoAutomatico(token) {
+async function getCurrentAddressByGoogleMaps(token) {
   if (!navigator.geolocation) return alert("Geolocalização não suportada.");
 
   navigator.geolocation.getCurrentPosition(async (pos) => {
     const { latitude, longitude } = pos.coords;
+    console.log(latitude, longitude)
 
     try {
       const response = await fetch(`${BASE_URL}/auth/reverse-geocoding`, {
@@ -1887,7 +1888,7 @@ async function validateToken() {
     location.href = "../../index.html";
   } else {
     const [user, location] = await Promise.all([
-      me(token), capturarEnderecoAutomatico(token)
+      me(token), getCurrentAddressByGoogleMaps(token)
     ])
     if (!user) {
       localStorage.removeItem("token");
