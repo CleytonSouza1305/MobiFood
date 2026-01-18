@@ -909,6 +909,49 @@ async function validateCoupon(couponCode, token) {
   }
 }
 
+async function createOrderRequest(token, userData) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ ...userData }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    messageAnimated(
+      "Seu pedido foi criado, efetue o pagamento para prosseguir.",
+      3000,
+      "top",
+      "right",
+      "12px",
+      "rgb(56, 166, 235)",
+      "#fff",
+      "500"
+    );
+  } catch (error) {
+    messageAnimated(
+      error.message,
+      4000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500"
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
 async function openCartModal(token, cartId) {
   const modal = document.querySelector(".cart-modal");
   if (modal.classList.contains("active")) {
@@ -1014,14 +1057,23 @@ async function openCartModal(token, cartId) {
           finishOrder.classList.replace("cupon-btn", "checkout-btn");
           cuponInput.value = "";
           return;
-        } 
+        }
 
-        openModal("Deseja confirmar pedido?") 
-        confirmBtn.addEventListener("click", () => {
+        openModal("Deseja confirmar pedido?");
+        confirmBtn.onclick = async () => {
           closeModal();
-          console.log('Chamando...')
-          // CHAMAR FUNÇÃO PARA CRIAR ORDER
-        });
+          const actualLocation = await getCurrentAddressByGoogleMaps(token);
+
+          if (actualLocation.ok) {
+            const data = {
+              deliveryAddress: actualLocation.address,
+              couponCode: couponCode ? couponCode : undefined,
+              paymentMethod: "Card",
+            };
+
+            await createOrderRequest(token, data);
+          }
+        };
       };
     }
   }
@@ -1155,14 +1207,14 @@ function createCouponCard(couponArr, listHtml) {
          <span>Utilizado</span>
        </button>`
             : cupon.is_active
-            ? `<button 
+              ? `<button 
           style="background-color: ${promoColor}" 
           class="copy-button enable-btn" 
           data-coupon="${cupon.code}" 
           data-coupon-name="${cupon.couponName}">
             <i class="fa-regular fa-copy"></i>
         </button>`
-            : `<button disabled class="copy-button disabled-icon">
+              : `<button disabled class="copy-button disabled-icon">
           <i class="fa-regular fa-copy"></i>
         </button>`
         }
@@ -1751,39 +1803,59 @@ function messageAnimated(
 }
 
 async function getCurrentAddressByGoogleMaps(token) {
-  if (!navigator.geolocation) return alert("Geolocalização não suportada.");
+  showLoader();
 
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const { latitude, longitude } = pos.coords;
-    console.log(latitude, longitude)
+  if (!navigator.geolocation) {
+    hideLoader();
+    alert("Geolocalização não suportada.");
+    return { ok: false };
+  }
 
-    try {
-      const response = await fetch(`${BASE_URL}/auth/reverse-geocoding`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-         },
-        body: JSON.stringify({ latitude, longitude })
-      });
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
 
-      const data = await response.json();
-      return data
-      
-    } catch (error) {
-      console.error("Erro ao converter coordenadas:", error);
-    }
+        try {
+          const response = await fetch(`${BASE_URL}/auth/reverse-geocoding`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ latitude, longitude }),
+          });
+
+          const data = await response.json();
+
+          resolve({
+            address: data.location,
+            ok: true,
+          });
+        } catch (error) {
+          console.error("Erro ao converter coordenadas:", error);
+          resolve({ ok: false, error });
+        } finally {
+          hideLoader();
+        }
+      },
+      (geoError) => {
+        console.error("Erro de geolocalização:", geoError);
+        hideLoader();
+        resolve({ ok: false, error: geoError });
+      }
+    );
   });
 }
 
 async function startApp(user, token) {
-  console.log(user)
+  console.log(user);
   switchUserTheme(user.favoriteTheme);
   insertUserData(user, token);
   openMobileMenu();
   createContentRestaurant(token);
   itemsAsideAction(token, user);
-  searchRestaurant(token)
+  searchRestaurant(token);
   logout();
 }
 
@@ -1888,7 +1960,7 @@ async function validateToken() {
   if (!token) {
     location.href = "../../index.html";
   } else {
-    const user = await me(token)
+    const user = await me(token);
     if (!user) {
       localStorage.removeItem("token");
       location.href = "../../index.html";
@@ -1901,4 +1973,3 @@ async function validateToken() {
 document.addEventListener("DOMContentLoaded", () => {
   validateToken();
 });
-
