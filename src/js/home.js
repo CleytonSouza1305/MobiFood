@@ -1024,6 +1024,8 @@ async function openCartModal(token, cartId) {
         if (errorTxt) errorTxt.textContent = "";
       });
 
+     let validatedCoupon = null
+
       finishOrder.onclick = async () => {
         const couponCode = cuponInput.value.trim();
 
@@ -1031,6 +1033,9 @@ async function openCartModal(token, cartId) {
           const result = await validateCoupon(couponCode, token);
 
           if (!result) return;
+
+          validatedCoupon = couponCode
+
           messageAnimated(
             `Cupon "${result.couponName}" aplicado!`,
             2000,
@@ -1067,7 +1072,7 @@ async function openCartModal(token, cartId) {
           if (actualLocation.ok) {
             const data = {
               deliveryAddress: actualLocation.address,
-              couponCode: couponCode ? couponCode : undefined,
+              couponCode: validatedCoupon || undefined,
               paymentMethod: "Card",
             };
 
