@@ -89,7 +89,7 @@ async function deleteAddress(addressId, userId, token) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -116,7 +116,7 @@ async function addressById(token, userId, addressId) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -144,7 +144,7 @@ async function updateAddress(token, userId, addressId, updatedData) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedData),
-      }
+      },
     );
 
     const data = await response.json();
@@ -418,7 +418,7 @@ async function restaurantById(token, restaurantId) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -574,7 +574,7 @@ async function createContentRestaurant(token) {
 
     secondContent = await getRestaurant(
       token,
-      `?pageSize=5&category=${randomDt.category}`
+      `?pageSize=5&category=${randomDt.category}`,
     );
   } while (secondContent.data.length < 1);
 
@@ -588,7 +588,7 @@ async function createContentRestaurant(token) {
     randomThird = categories[Math.floor(Math.random() * categories.length)];
     thirdContent = await getRestaurant(
       token,
-      `?pageSize=5&category=${randomThird.category}`
+      `?pageSize=5&category=${randomThird.category}`,
     );
   } while (
     thirdContent.data.length < 1 ||
@@ -623,7 +623,7 @@ async function addInCartRequest(token, itemId) {
       "12px",
       "#107af4",
       "#fff",
-      "500"
+      "500",
     );
   } catch (error) {
     console.log(`Erro ao adicionar item ao carrinho, ${error.message}`);
@@ -765,7 +765,7 @@ async function updateItemInCart(quantity, itemId, token) {
       "12px",
       "rgb(198, 48, 48)",
       "#fff",
-      "500"
+      "500",
     );
   } finally {
     hideLoader();
@@ -800,7 +800,7 @@ async function deleteItemInCart(itemId, token) {
       "12px",
       "rgb(198, 48, 48)",
       "#fff",
-      "500"
+      "500",
     );
   } finally {
     hideLoader();
@@ -934,7 +934,7 @@ async function createOrderRequest(token, userData) {
       "12px",
       "rgb(56, 166, 235)",
       "#fff",
-      "500"
+      "500",
     );
   } catch (error) {
     messageAnimated(
@@ -945,7 +945,7 @@ async function createOrderRequest(token, userData) {
       "12px",
       "rgb(198, 48, 48)",
       "#fff",
-      "500"
+      "500",
     );
   } finally {
     hideLoader();
@@ -1024,7 +1024,7 @@ async function openCartModal(token, cartId) {
         if (errorTxt) errorTxt.textContent = "";
       });
 
-     let validatedCoupon = null
+      let validatedCoupon = null;
 
       finishOrder.onclick = async () => {
         const couponCode = cuponInput.value.trim();
@@ -1034,7 +1034,7 @@ async function openCartModal(token, cartId) {
 
           if (!result) return;
 
-          validatedCoupon = couponCode
+          validatedCoupon = couponCode;
 
           messageAnimated(
             `Cupon "${result.couponName}" aplicado!`,
@@ -1044,7 +1044,7 @@ async function openCartModal(token, cartId) {
             "12px",
             "#107af4",
             "#fff",
-            "500"
+            "500",
           );
 
           if (
@@ -1054,7 +1054,7 @@ async function openCartModal(token, cartId) {
             applyCouponVisually(
               +cart.total,
               result.discountType,
-              +result.discountValue
+              +result.discountValue,
             );
           }
 
@@ -1110,7 +1110,7 @@ async function couponRequest(token, request) {
       "12px",
       "rgb(198, 48, 48)",
       "#fff",
-      "500"
+      "500",
     );
   } finally {
     hideLoader();
@@ -1186,7 +1186,7 @@ function createCouponCard(couponArr, listHtml) {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
-        }
+        },
       );
 
       const isAlreadyUsed = Boolean(cupon.usage_at);
@@ -1244,7 +1244,7 @@ function createCouponCard(couponArr, listHtml) {
           "12px",
           "#107af4",
           "#fff",
-          "500"
+          "500",
         );
       });
     });
@@ -1303,7 +1303,7 @@ async function openCouponModal(token, userId) {
     couponRequest(token, "api/coupons/avaliable?is_active=true"),
     couponRequest(
       token,
-      "api/coupons/avaliable?sortBy=discountValue&order=desc"
+      "api/coupons/avaliable?sortBy=discountValue&order=desc",
     ),
     couponRequest(token, `api/coupons/usage/${userId}`),
   ]);
@@ -1316,16 +1316,16 @@ async function openCouponModal(token, userId) {
 
   const isActiveNotUtilized = data.isActive.filter((cupomAtivo) => {
     return !data.couponUsage.some(
-      (cupomUsado) => cupomUsado.id === cupomAtivo.id
+      (cupomUsado) => cupomUsado.id === cupomAtivo.id,
     );
   });
 
   const biggestDiscountNotUtilized = data.biggestDiscount.filter(
     (cupomAtivo) => {
       return !data.couponUsage.some(
-        (cupomUsado) => cupomUsado.id === cupomAtivo.id
+        (cupomUsado) => cupomUsado.id === cupomAtivo.id,
       );
-    }
+    },
   );
 
   const modal = document.querySelector(".coupon-modal");
@@ -1433,7 +1433,7 @@ async function commentReq({ restaurantId, userId, comment, rating }, token) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ comment, rating }),
-      }
+      },
     );
 
     const data = await response.json();
@@ -1451,7 +1451,7 @@ async function commentReq({ restaurantId, userId, comment, rating }, token) {
       "6px",
       "rgb(198, 48, 48)",
       "#fff",
-      "500"
+      "500",
     );
   } finally {
     hideLoader();
@@ -1474,13 +1474,13 @@ function submitComment(restaurantId, token) {
         "6px",
         "rgb(198, 48, 48)",
         "#fff",
-        "500"
+        "500",
       );
       return;
     }
 
     const ratingCheckbox = document.querySelector(
-      'input[name="rating"]:checked'
+      'input[name="rating"]:checked',
     );
 
     if (!ratingCheckbox) {
@@ -1492,7 +1492,7 @@ function submitComment(restaurantId, token) {
         "6px",
         "rgb(198, 48, 48)",
         "#fff",
-        "500"
+        "500",
       );
       return;
     }
@@ -1599,7 +1599,7 @@ function showRestaurantInfo(data, token) {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
-          }
+          },
         );
 
         card.innerHTML = `
@@ -1733,7 +1733,7 @@ async function getDataRestaurantCard(token) {
           "6px",
           "rgb(198, 48, 48)",
           "#fff",
-          "500"
+          "500",
         );
         return;
       }
@@ -1790,7 +1790,7 @@ function messageAnimated(
   borderRadius,
   background,
   color,
-  fontWeight
+  fontWeight,
 ) {
   Toastify({
     text: message,
@@ -1844,11 +1844,25 @@ async function getCurrentAddressByGoogleMaps(token) {
           hideLoader();
         }
       },
-      (geoError) => {
+      async (geoError) => {
         console.error("Erro de geolocalização:", geoError);
+        const user = await me(token);
+        const addressDefault = user.address.find((ad) => ad.isActive === true);
+        let actualAddress = null
+
+        if (addressDefault) {
+          const streetFormatted =
+            addressDefault.street.charAt(0).toUpperCase() +
+            addressDefault.street.slice(1);
+
+          const address = `${streetFormatted}, ${addressDefault.number} - ${addressDefault.city} - ${addressDefault.state} (${addressDefault.role})`;
+
+          actualAddress = address
+        }
+
         hideLoader();
-        resolve({ ok: false, error: geoError });
-      }
+        resolve({ ok: true, address: actualAddress });
+      },
     );
   });
 }
@@ -1895,14 +1909,14 @@ function searchRestaurant(token) {
 
     searchTimeout = setTimeout(async () => {
       const matchedCategories = categories.filter((c) =>
-        c.toLowerCase().includes(query)
+        c.toLowerCase().includes(query),
       );
 
       const ptCategory = formatCategory(matchedCategories[0], true);
       if (matchedCategories.length > 0) {
         const restaurant = await getRestaurant(
           token,
-          `?pageSize=10&category=${ptCategory}`
+          `?pageSize=10&category=${ptCategory}`,
         );
         const data = restaurant.data;
 
@@ -1916,7 +1930,7 @@ function searchRestaurant(token) {
 
       const restaurant = await getRestaurant(
         token,
-        `?pageSize=10&name=${query}`
+        `?pageSize=10&name=${query}`,
       );
       const data = restaurant.data;
 
