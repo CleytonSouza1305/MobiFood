@@ -1031,7 +1031,8 @@ form .submit-content {
 }
 
 .cart-modal,
-.coupon-modal {
+.coupon-modal,
+.order-modal {
   position: fixed;
   width: 450px;
   height: 550px;
@@ -1050,7 +1051,8 @@ form .submit-content {
 }
 
 .cart-modal.active,
-.coupon-modal.active {
+.coupon-modal.active,
+.order-modal.active {
   transform: translateX(0);
   opacity: 1;
   pointer-events: all;
@@ -1062,7 +1064,7 @@ form .submit-content {
   font-size: 1rem;
 }
 
-.cart-modal .cart-items {
+.cart-modal .cart-items .order-modal {
   flex: 1;
   display: flex;
   align-items: center;

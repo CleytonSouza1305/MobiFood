@@ -952,6 +952,66 @@ async function createOrderRequest(token, userData) {
   }
 }
 
+async function getOrdersByUserId(token, userId) {
+  showLoader();
+  try {
+    const response = await fetch(`${BASE_URL}/api/order/user/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data
+  } catch (error) {
+    messageAnimated(
+      error.message,
+      4000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500",
+    );
+  } finally {
+    hideLoader();
+  }
+}
+
+async function openOrderModal(token, userId) {
+  const orders = await getOrdersByUserId(token, userId)
+  console.log(orders)
+
+  const modal = document.querySelector(".order-modal");
+  if (modal.classList.contains("active")) {
+    modal.classList.remove("active");
+  } else {
+    modal.classList.add("active");
+
+    const asideMenu = document.querySelector(".aside");
+    asideMenu.classList.remove("open");
+
+    const menu = document.querySelector(".menu");
+    const menuIcon = menu.querySelector("i");
+
+    menuIcon.classList.remove("fa-xmark");
+    menuIcon.classList.add("fa-bars");
+
+    const closeBtn = modal.querySelector(".close-modal");
+    closeBtn.onclick = () => modal.classList.remove("active");
+  }
+
+  const list = modal.querySelector(".order-list");
+  createOrderItems(orders, list);
+}
+
 async function openCartModal(token, cartId) {
   const modal = document.querySelector(".cart-modal");
   if (modal.classList.contains("active")) {
@@ -1382,7 +1442,7 @@ function itemsAsideAction(token, userData) {
 
       switch (text) {
         case "Meus pedidos":
-          alert("Meus pedidos modal");
+          openOrderModal(token, userData.id)
           break;
 
         case "Meu carrinho":
