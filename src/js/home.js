@@ -985,6 +985,28 @@ async function getOrdersByUserId(token, userId) {
   }
 }
 
+function createOrderItems(orderArr, content) {
+  if (!content) return 
+
+  content.innerHTML = ''
+
+  const status = {
+    PLACED: 'Pedido feito',
+    CONFIRMED: 'Confirmado',
+    PREPARING: 'Preparando',
+    OUT_FOR_DELIVERY: 'Saiu para entrega',
+    DELIVERED: 'Entregue',
+    CANCELLED: 'Cancelado'
+  }
+
+  orderArr.forEach((order) => {
+    content.innerHTML += `
+      <div class="order-card">
+        
+      </div>
+    `
+  })
+}
 async function openOrderModal(token, userId) {
   const orders = await getOrdersByUserId(token, userId)
   console.log(orders)
