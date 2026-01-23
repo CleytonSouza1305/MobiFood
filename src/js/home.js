@@ -960,7 +960,7 @@ async function getOrdersByUserId(token, userId) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-      }
+      },
     });
 
     const data = await response.json();
@@ -968,7 +968,7 @@ async function getOrdersByUserId(token, userId) {
       throw new Error(data.message);
     }
 
-    return data
+    return data;
   } catch (error) {
     messageAnimated(
       error.message,
@@ -985,31 +985,126 @@ async function getOrdersByUserId(token, userId) {
   }
 }
 
-function createOrderItems(orderArr, content) {
-  if (!content) return 
-
-  content.innerHTML = ''
-
+function reformatedStatusColor(statusOrder) {
   const status = {
-    PLACED: 'Pedido feito',
-    CONFIRMED: 'Confirmado',
-    PREPARING: 'Preparando',
-    OUT_FOR_DELIVERY: 'Saiu para entrega',
-    DELIVERED: 'Entregue',
-    CANCELLED: 'Cancelado'
-  }
+    PLACED: {
+      status: "Pedido feito",
+      color: "#64748b",
+      width: "15%",
+    },
+    CONFIRMED: {
+      status: "Confirmado",
+      color: "#3b82f6",
+      width: "35%",
+    },
+    PREPARING: {
+      status: "Preparando",
+      color: "#f59e0b",
+      width: "60%",
+    },
+    OUT_FOR_DELIVERY: {
+      status: "Saiu para entrega",
+      color: "#8b5cf6",
+      width: "85%",
+    },
+    DELIVERED: {
+      status: "Entregue",
+      color: "#10b981",
+      width: "100%",
+    },
+    CANCELLED: {
+      status: "Cancelado",
+      color: "#ef4444",
+      width: "100%",
+    },
+  };
+
+  return (
+    status[statusOrder] || {
+      status: "Processando...",
+      color: "#ff0707ff",
+      width: "100%",
+    }
+  );
+}
+
+function createOrderItems(orderArr, content) {
+  if (!content) return;
+
+  content.innerHTML = "";
 
   orderArr.forEach((order) => {
+    const createdAt = new Date(order.createdAt).toLocaleDateString().split("/");
+    const createdAtHour = new Date(order.createdAt)
+      .toLocaleTimeString()
+      .split(":")[0];
+
+    const month = new Date(order.createdAt)
+      .toLocaleString("pt-BR", { month: "short" })
+      .replace(".", "")
+      .toUpperCase();
+
+    const result = `${createdAt[0]} ${month}, ${createdAt[2]}`;
+
+    const statusData = reformatedStatusColor(order.status);
+
     content.innerHTML += `
       <div class="order-card">
-        
+        <header class="card-header">
+          <p class="order-number">
+            ${order.orderNumber ? order.orderNumber : "Número do pedido indisponível."}
+          </p>
+          
+          <div class="order-info">
+            <div class="status-info">
+              <span style="background-color: ${statusData.color}; color: white; padding: 2px 8px; border-radius: 4px;" class="status-order">
+                ${statusData.status}
+              </span>
+              <span class="order-createdAt">${result} • ${createdAtHour}h</span>
+            </div>
+
+            <div class="progress-content">
+              <div class="progress-bar">
+                <div class="bar-dad">
+                  <div 
+                    style="background-color: ${statusData.color}; width: ${statusData.width}; height: 100%; border-radius: 4px; transition: width 0.5s ease;" 
+                    class="bar">
+                  </div>
+                  
+                  <div class="animated-hover" style="background-color: ${statusData.color};">
+                    <span class="status-txt">${statusData.status}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div class="btn-content">
+          <button data-number="${order.orderNumber}" class="see-more-btn">
+            Ver mais
+          </button>
+        </div>
       </div>
-    `
+    `;
+  });
+
+  const seeMoreOrderData = document.querySelectorAll('.see-more-btn')
+  seeMoreOrderData.forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
+      const orderNumber = ev.target.dataset.number
+      if (!orderNumber) return
+
+      openOrderInfo(orderNumber)
+    })
   })
 }
+
+async function openOrderInfo(orderNumber) {
+  alert(orderNumber)
+}
 async function openOrderModal(token, userId) {
-  const orders = await getOrdersByUserId(token, userId)
-  console.log(orders)
+  const orders = await getOrdersByUserId(token, userId);
+  console.log(orders);
 
   const modal = document.querySelector(".order-modal");
   if (modal.classList.contains("active")) {
@@ -1464,7 +1559,7 @@ function itemsAsideAction(token, userData) {
 
       switch (text) {
         case "Meus pedidos":
-          openOrderModal(token, userData.id)
+          openOrderModal(token, userData.id);
           break;
 
         case "Meu carrinho":
@@ -1930,7 +2025,7 @@ async function getCurrentAddressByGoogleMaps(token) {
         console.error("Erro de geolocalização:", geoError);
         const user = await me(token);
         const addressDefault = user.address.find((ad) => ad.isActive === true);
-        let actualAddress = null
+        let actualAddress = null;
 
         if (addressDefault) {
           const streetFormatted =
@@ -1939,7 +2034,7 @@ async function getCurrentAddressByGoogleMaps(token) {
 
           const address = `${streetFormatted}, ${addressDefault.number} - ${addressDefault.city} - ${addressDefault.state} (${addressDefault.role})`;
 
-          actualAddress = address
+          actualAddress = address;
         }
 
         hideLoader();
