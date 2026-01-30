@@ -1037,33 +1037,52 @@ function reformatedStatusColor(statusOrder) {
   );
 }
 
+function startTimer(expiresAt, displayElement) {
+  if (!expiresAt || !displayElement) return;
+  const targetDate = new Date(expiresAt).getTime();
+
+  const interval = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance < 0) {
+      clearInterval(interval);
+      displayElement.style.color = '#EF4444'
+      displayElement.innerHTML = "Tempo expirado";
+      return;
+    }
+
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    const m = String(minutes).padStart(2, "0");
+    const s = String(seconds).padStart(2, "0");
+
+    displayElement.innerHTML = `<i class="fa-regular fa-clock"></i>${m}:${s}`;
+  }, 1000);
+}
+
 function createOrderItems(orderArr, content, token) {
   if (!content) return;
 
   content.innerHTML = "";
 
   orderArr.forEach((order) => {
-    const createdAt = new Date(order.createdAt).toLocaleDateString().split("/");
-    const createdAtHour = new Date(order.createdAt)
-      .toLocaleTimeString()
-      .split(":")[0];
-
-    const month = new Date(order.createdAt)
-      .toLocaleString("pt-BR", { month: "short" })
-      .replace(".", "")
-      .toUpperCase();
-
+    const createdAtDate = new Date(order.createdAt);
+    const createdAt = createdAtDate.toLocaleDateString().split("/");
+    const createdAtHour = createdAtDate.toLocaleTimeString().split(":")[0];
+    const month = createdAtDate.toLocaleString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
     const result = `${createdAt[0]} ${month}, ${createdAt[2]}`;
-
     const statusData = reformatedStatusColor(order.status);
 
-    content.innerHTML += `
-      <div class="order-card">
+    const card = document.createElement("div");
+    card.className = "order-card";
+    card.innerHTML = `
         <div class="card-header">
           <p class="order-number">
             ${order.orderNumber ? order.orderNumber : "Número do pedido indisponível."}
+            <span class="timer-element"></span>
           </p>
-          
           <div class="order-info">
             <div class="status-info">
               <span style="background-color: ${statusData.color}; color: white; padding: 2px 8px; border-radius: 4px;" class="status-order">
@@ -1071,15 +1090,10 @@ function createOrderItems(orderArr, content, token) {
               </span>
               <span class="order-createdAt">${result} • ${createdAtHour}h</span>
             </div>
-
             <div class="progress-content">
               <div class="progress-bar">
                 <div class="bar-dad">
-                  <div 
-                    style="background-color: ${statusData.color}; width: ${statusData.width}; height: 100%; border-radius: 4px; transition: width 0.5s ease;" 
-                    class="bar">
-                  </div>
-                  
+                  <div style="background-color: ${statusData.color}; width: ${statusData.width}; height: 100%; border-radius: 4px; transition: width 0.5s ease;" class="bar"></div>
                   <div class="animated-hover" style="background-color: ${statusData.color};">
                     <span class="status-txt">${statusData.status}</span>
                   </div>
@@ -1089,39 +1103,40 @@ function createOrderItems(orderArr, content, token) {
           </div>
         </div>
         <div class="btn-content">
-          <button data-number="${order.orderNumber}" class="see-more-btn">
-            Ver mais
-          </button>
+          <button data-number="${order.orderNumber}" class="see-more-btn">Ver mais</button>
         </div>
-
         <div class="see-more-order" id="${order.orderNumber}"></div>
-      </div>
     `;
+
+    content.appendChild(card);
+
+    const timerEl = card.querySelector(".timer-element");
+    startTimer(order.expiresAt, timerEl);
+    
   });
 
-  const seeMoreOrderData = document.querySelectorAll(".see-more-btn");
-  seeMoreOrderData.forEach((btn) => {
+  const seeMoreBtns = content.querySelectorAll(".see-more-btn");
+  seeMoreBtns.forEach((btn) => {
     btn.addEventListener("click", async (ev) => {
-      const button = ev.currentTarget
+      const button = ev.currentTarget;
       const orderNumber = button.dataset.number;
       if (!orderNumber) return;
 
-      document.querySelectorAll('.see-more-order').forEach((c) => {
+      document.querySelectorAll(".see-more-order").forEach((c) => {
         if (c.id !== orderNumber) {
-          c.classList.remove('open')
+          c.classList.remove("open");
           const otherBtn = document.querySelector(`.see-more-btn[data-number="${c.id}"]`);
-          if (otherBtn) otherBtn.textContent = 'Ver mais';
+          if (otherBtn) otherBtn.textContent = "Ver mais";
         }
-      })
+      });
 
       await openOrderInfo(orderNumber, token);
+      const targetContent = document.getElementById(orderNumber);
 
-      const content = document.getElementById(orderNumber);
-
-      if (content.classList.contains('open')) {
-        button.textContent = 'Fechar';
+      if (targetContent.classList.contains("open")) {
+        button.textContent = "Fechar";
       } else {
-        button.textContent = 'Ver mais';
+        button.textContent = "Ver mais";
       }
     });
   });
@@ -1158,13 +1173,15 @@ async function openOrderInfo(orderNumber, token) {
 
   if (content.classList.contains("open")) {
     content.classList.remove("open");
-    return; 
+    return;
   }
 
   const refatoredOrderNumber = orderNumber.replace("#", "");
   const order = await getOnlyOrder(refatoredOrderNumber, token);
 
-  const itemsHTML = order.items.map(item => `
+  const itemsHTML = order.items
+    .map(
+      (item) => `
     <div class="order-item">
       <img src="${item.item.imageUrl}" alt="${item.item.name}" />
       <div class="item-info">
@@ -1172,14 +1189,16 @@ async function openOrderInfo(orderNumber, token) {
         <span class="item-price">R$ ${parseFloat(item.priceAtOrder).toFixed(2)}</span>
       </div>
     </div>
-  `).join('');
+  `,
+    )
+    .join("");
 
   content.innerHTML = `
     <div class="content-wrapper">
       <div class="order-details-header">
         <span>
           <strong>Pedido feito:</strong>
-          ${new Date(order.createdAt).toLocaleDateString('pt-BR')}
+          ${new Date(order.createdAt).toLocaleDateString("pt-BR")}
         </span>
       </div>
       
@@ -1197,17 +1216,18 @@ async function openOrderInfo(orderNumber, token) {
       <div class="order-summary">
         <div class="summary-line"><span>Taxa de entrega:</span> <span>R$ ${order.deliveryFee}</span></div>
         <div class="summary-line total"><span>Total:</span> <span>R$ ${order.totalDiscounted}</span></div>
-        <div class="payment-tag"><strong>Forma de pagamento: </strong>${order.paymentMethod.toUpperCase() === 'CARD' ? '💳 Cartão' : '💠 PIX'}</div>
+        <div class="payment-tag"><strong>Forma de pagamento: </strong>${order.paymentMethod.toUpperCase() === "CARD" ? "💳 Cartão" : "💠 PIX"}</div>
       </div>
 
       ${
-        order.status === 'PLACED' ?
-          `<div class="order-payment">
+        order.status === "PLACED"
+          ? `<div class="order-payment">
             Efetuar pagamento 
             <button data-paymentOrder="${order.orderNumber}">
               Pagar
             </button>
-          </div>` : ''
+          </div>`
+          : ""
       }
     </div>
   `;
@@ -1243,9 +1263,8 @@ async function openOrderModal(token, userId) {
   if (orders && orders.length > 0) {
     createOrderItems(orders, list, token);
   } else {
-    list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`
+    list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
   }
-
 }
 
 async function openCartModal(token, cartId) {

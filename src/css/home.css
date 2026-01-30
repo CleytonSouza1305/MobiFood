@@ -1499,6 +1499,17 @@ p.no-have-coupons {
 .order-card .card-header .order-number {
   font-size: 1.5rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-card .card-header .order-number span {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
 }
 
 .order-card .card-header .order-info {
