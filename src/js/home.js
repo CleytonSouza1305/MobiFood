@@ -626,7 +626,16 @@ async function addInCartRequest(token, itemId) {
       "500",
     );
   } catch (error) {
-    console.log(`Erro ao adicionar item ao carrinho, ${error.message}`);
+    messageAnimated(
+      error.message,
+      4000,
+      "top",
+      "right",
+      "12px",
+      "rgb(198, 48, 48)",
+      "#fff",
+      "500",
+    );
   } finally {
     hideLoader();
   }
@@ -1028,7 +1037,7 @@ function reformatedStatusColor(statusOrder) {
   );
 }
 
-function createOrderItems(orderArr, content) {
+function createOrderItems(orderArr, content, token) {
   if (!content) return;
 
   content.innerHTML = "";
@@ -1050,7 +1059,7 @@ function createOrderItems(orderArr, content) {
 
     content.innerHTML += `
       <div class="order-card">
-        <header class="card-header">
+        <div class="card-header">
           <p class="order-number">
             ${order.orderNumber ? order.orderNumber : "Número do pedido indisponível."}
           </p>
@@ -1078,30 +1087,134 @@ function createOrderItems(orderArr, content) {
               </div>
             </div>
           </div>
-        </header>
+        </div>
         <div class="btn-content">
           <button data-number="${order.orderNumber}" class="see-more-btn">
             Ver mais
           </button>
         </div>
+
+        <div class="see-more-order" id="${order.orderNumber}"></div>
       </div>
     `;
   });
 
-  const seeMoreOrderData = document.querySelectorAll('.see-more-btn')
+  const seeMoreOrderData = document.querySelectorAll(".see-more-btn");
   seeMoreOrderData.forEach((btn) => {
-    btn.addEventListener('click', (ev) => {
-      const orderNumber = ev.target.dataset.number
-      if (!orderNumber) return
+    btn.addEventListener("click", async (ev) => {
+      const button = ev.currentTarget
+      const orderNumber = button.dataset.number;
+      if (!orderNumber) return;
 
-      openOrderInfo(orderNumber)
-    })
-  })
+      document.querySelectorAll('.see-more-order').forEach((c) => {
+        if (c.id !== orderNumber) {
+          c.classList.remove('open')
+          const otherBtn = document.querySelector(`.see-more-btn[data-number="${c.id}"]`);
+          if (otherBtn) otherBtn.textContent = 'Ver mais';
+        }
+      })
+
+      await openOrderInfo(orderNumber, token);
+
+      const content = document.getElementById(orderNumber);
+
+      if (content.classList.contains('open')) {
+        button.textContent = 'Fechar';
+      } else {
+        button.textContent = 'Ver mais';
+      }
+    });
+  });
 }
 
-async function openOrderInfo(orderNumber) {
-  alert(orderNumber)
+async function getOnlyOrder(orderNumber, token) {
+  showLoader();
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/order/${orderNumber}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`Erro ao buscar order, motivo: ${error.message}`);
+  } finally {
+    hideLoader();
+  }
 }
+
+async function openOrderInfo(orderNumber, token) {
+  const content = document.getElementById(orderNumber);
+
+  if (content.classList.contains("open")) {
+    content.classList.remove("open");
+    return; 
+  }
+
+  const refatoredOrderNumber = orderNumber.replace("#", "");
+  const order = await getOnlyOrder(refatoredOrderNumber, token);
+
+  const itemsHTML = order.items.map(item => `
+    <div class="order-item">
+      <img src="${item.item.imageUrl}" alt="${item.item.name}" />
+      <div class="item-info">
+        <span class="item-name">${item.quantity}x ${item.item.name}</span>
+        <span class="item-price">R$ ${parseFloat(item.priceAtOrder).toFixed(2)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  content.innerHTML = `
+    <div class="content-wrapper">
+      <div class="order-details-header">
+        <span>
+          <strong>Pedido feito:</strong>
+          ${new Date(order.createdAt).toLocaleDateString('pt-BR')}
+        </span>
+      </div>
+      
+      <div class="order-address">
+        <p>
+          <strong>Endereço de entrega:</strong>
+          <br>${order.deliveryAddress}
+        </p>
+      </div>
+
+      <div class="order-items-list">
+        ${itemsHTML}
+      </div>
+
+      <div class="order-summary">
+        <div class="summary-line"><span>Taxa de entrega:</span> <span>R$ ${order.deliveryFee}</span></div>
+        <div class="summary-line total"><span>Total:</span> <span>R$ ${order.totalDiscounted}</span></div>
+        <div class="payment-tag"><strong>Forma de pagamento: </strong>${order.paymentMethod.toUpperCase() === 'CARD' ? '💳 Cartão' : '💠 PIX'}</div>
+      </div>
+
+      ${
+        order.status === 'PLACED' ?
+          `<div class="order-payment">
+            Efetuar pagamento 
+            <button data-paymentOrder="${order.orderNumber}">
+              Pagar
+            </button>
+          </div>` : ''
+      }
+    </div>
+  `;
+
+  content.classList.add("open");
+}
+
 async function openOrderModal(token, userId) {
   const orders = await getOrdersByUserId(token, userId);
   console.log(orders);
@@ -1126,7 +1239,13 @@ async function openOrderModal(token, userId) {
   }
 
   const list = modal.querySelector(".order-list");
-  createOrderItems(orders, list);
+
+  if (orders && orders.length > 0) {
+    createOrderItems(orders, list, token);
+  } else {
+    list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`
+  }
+
 }
 
 async function openCartModal(token, cartId) {
