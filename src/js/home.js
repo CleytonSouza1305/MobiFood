@@ -961,16 +961,19 @@ async function createOrderRequest(token, userData) {
   }
 }
 
-async function getOrdersByUserId(token, userId) {
+async function getOrdersByUserId(token, userId, query = "?status=PLACED") {
   showLoader();
   try {
-    const response = await fetch(`${BASE_URL}/api/order/user/${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      `${BASE_URL}/api/order/user/${userId}${query}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     const data = await response.json();
     if (!response.ok) {
@@ -1047,7 +1050,7 @@ function startTimer(expiresAt, displayElement) {
 
     if (distance < 0) {
       clearInterval(interval);
-      displayElement.style.color = '#EF4444'
+      displayElement.style.color = "#EF4444";
       displayElement.innerHTML = "Tempo expirado";
       return;
     }
@@ -1071,7 +1074,10 @@ function createOrderItems(orderArr, content, token) {
     const createdAtDate = new Date(order.createdAt);
     const createdAt = createdAtDate.toLocaleDateString().split("/");
     const createdAtHour = createdAtDate.toLocaleTimeString().split(":")[0];
-    const month = createdAtDate.toLocaleString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
+    const month = createdAtDate
+      .toLocaleString("pt-BR", { month: "short" })
+      .replace(".", "")
+      .toUpperCase();
     const result = `${createdAt[0]} ${month}, ${createdAt[2]}`;
     const statusData = reformatedStatusColor(order.status);
 
@@ -1111,8 +1117,10 @@ function createOrderItems(orderArr, content, token) {
     content.appendChild(card);
 
     const timerEl = card.querySelector(".timer-element");
-    startTimer(order.expiresAt, timerEl);
-    
+
+    if (order.status === "PLACED") {
+      startTimer(order.expiresAt, timerEl);
+    }
   });
 
   const seeMoreBtns = content.querySelectorAll(".see-more-btn");
@@ -1125,7 +1133,9 @@ function createOrderItems(orderArr, content, token) {
       document.querySelectorAll(".see-more-order").forEach((c) => {
         if (c.id !== orderNumber) {
           c.classList.remove("open");
-          const otherBtn = document.querySelector(`.see-more-btn[data-number="${c.id}"]`);
+          const otherBtn = document.querySelector(
+            `.see-more-btn[data-number="${c.id}"]`,
+          );
           if (otherBtn) otherBtn.textContent = "Ver mais";
         }
       });
@@ -1216,7 +1226,31 @@ async function openOrderInfo(orderNumber, token) {
       <div class="order-summary">
         <div class="summary-line"><span>Taxa de entrega:</span> <span>R$ ${order.deliveryFee}</span></div>
         <div class="summary-line total"><span>Total:</span> <span>R$ ${order.totalDiscounted}</span></div>
-        <div class="payment-tag"><strong>Forma de pagamento: </strong>${order.paymentMethod.toUpperCase() === "CARD" ? "💳 Cartão" : "💠 PIX"}</div>
+
+        ${
+          order.status === "PLACED"
+            ? `
+            <div class="payment-selection">
+        <label for="payment-method"><strong>Forma de pagamento: </strong></label>
+        <select id="payment-method-${order.id}" class="method-select">
+          <option value="PIX" ${order.paymentMethod === "PIX" ? "selected" : ""}>💠 PIX</option>
+          <option value="CREDIT_CARD" ${order.paymentMethod === "CREDIT_CARD" ? "selected" : ""}>💳 Cartão de Crédito</option>
+          <option value="DEBIT_CARD" ${order.paymentMethod === "DEBIT_CARD" ? "selected" : ""}>💸 Cartão de Débito</option>
+        </select>
+        </div>
+           `
+            : ''
+        }
+
+        ${
+          order.status !== 'OUT_FOR_DELIVERY' 
+          && order.status !== 'DELIVERED'
+          && order.status !== 'CANCELLED'
+          && order.status !== 'PLACED'
+            ? 
+              `<div class="cancel-order-content"><button data-order-number="${order.orderNumber}" class="cancel-order">Cancelar pedido</button></div>`
+            : ''
+        }
       </div>
 
       ${
@@ -1236,8 +1270,24 @@ async function openOrderInfo(orderNumber, token) {
 }
 
 async function openOrderModal(token, userId) {
-  const orders = await getOrdersByUserId(token, userId);
-  console.log(orders);
+  const [orders, confirmed, preparing, outForDelivery, delivered, cancelled] =
+    await Promise.all([
+      getOrdersByUserId(token, userId),
+      getOrdersByUserId(token, userId, "?status=CONFIRMED"),
+      getOrdersByUserId(token, userId, "?status=PREPARING"),
+      getOrdersByUserId(token, userId, "?status=OUT_FOR_DELIVERY"),
+      getOrdersByUserId(token, userId, "?status=DELIVERED"),
+      getOrdersByUserId(token, userId, "?status=CANCELLED"),
+    ]);
+
+  const data = {
+    order_placed: orders.orders,
+    order_confirmed: confirmed.orders,
+    order_preparing: preparing.orders,
+    order_out_for_delivery: outForDelivery.orders,
+    order_delivered: delivered.orders,
+    order_cancelled: cancelled.orders,
+  };
 
   const modal = document.querySelector(".order-modal");
   if (modal.classList.contains("active")) {
@@ -1260,11 +1310,80 @@ async function openOrderModal(token, userId) {
 
   const list = modal.querySelector(".order-list");
 
-  if (orders && orders.length > 0) {
-    createOrderItems(orders, list, token);
+  if (data.order_placed && data.order_placed.length > 0) {
+    createOrderItems(data.order_placed, list, token);
   } else {
     list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
   }
+
+  const filterBtns = document.querySelectorAll(".input-filter");
+  filterBtns[0].checked = true;
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const filter = ev.currentTarget.value;
+
+      switch (filter) {
+        case "PLACED":
+          if (data.order_placed && data.order_placed.length > 0) {
+            createOrderItems(data.order_placed, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        case "CONFIRMED":
+          if (data.order_confirmed && data.order_confirmed.length > 0) {
+            createOrderItems(data.order_confirmed, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        case "PREPARING":
+          if (data.order_preparing && data.order_preparing.length > 0) {
+            createOrderItems(data.order_preparing, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        case "OUT_FOR_DELIVERY":
+          if (
+            data.order_out_for_delivery &&
+            data.order_out_for_delivery.length > 0
+          ) {
+            createOrderItems(data.order_out_for_delivery, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        case "DELIVERED":
+          if (data.order_delivered && data.order_delivered.length > 0) {
+            createOrderItems(data.order_delivered, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        case "CANCELLED":
+          if (data.order_cancelled && data.order_cancelled.length > 0) {
+            createOrderItems(data.order_cancelled, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+
+        default:
+          if (data.order_placed && data.order_placed.length > 0) {
+            createOrderItems(data.order_placed, list, token);
+          } else {
+            list.innerHTML = `<p class="empty-orders">Parece que você ainda não pediu nada. <br>Explore nossos restaurantes!</p>`;
+          }
+          break;
+      }
+    });
+  });
 }
 
 async function openCartModal(token, cartId) {

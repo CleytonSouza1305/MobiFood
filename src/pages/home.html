@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
@@ -78,7 +78,9 @@
               </li>
 
               <li class="list-aside-item">
-                <button id="logout-btn"><i class="fas fa-sign-out"></i> Sair</button>
+                <button id="logout-btn">
+                  <i class="fas fa-sign-out"></i> Sair
+                </button>
               </li>
             </ul>
           </aside>
@@ -227,7 +229,9 @@
           <span class="total-price">R$ 0,00</span>
         </div>
 
-        <button disabled class="finish-order checkout-btn">Finalizar pedido</button>
+        <button disabled class="finish-order checkout-btn">
+          Finalizar pedido
+        </button>
       </div>
     </div>
 
@@ -242,17 +246,36 @@
       </div>
       <div class="coupon-filter">
         <label class="filter-option">
-          <input class="input-filter" type="radio" name="coupon-filter" id="isActive" checked value="is_active"/>
+          <input
+            class="input-filter"
+            type="radio"
+            name="coupon-filter"
+            id="isActive"
+            checked
+            value="is_active"
+          />
           <span>Disponíveis</span>
         </label>
 
         <label class="filter-option">
-          <input class="input-filter" type="radio" name="coupon-filter" id="biggestDiscount" value="biggestDiscount"/>
+          <input
+            class="input-filter"
+            type="radio"
+            name="coupon-filter"
+            id="biggestDiscount"
+            value="biggestDiscount"
+          />
           <span>Maior Desconto</span>
         </label>
 
         <label class="filter-option">
-          <input class="input-filter" type="radio" name="coupon-filter" id="couponUsage" value="usaged"/>
+          <input
+            class="input-filter"
+            type="radio"
+            name="coupon-filter"
+            id="couponUsage"
+            value="usaged"
+          />
           <span>Usados</span>
         </label>
       </div>
@@ -268,6 +291,75 @@
       <div class="order-header">
         <h3>Meus pedidos</h3>
         <p>Clique para ver as informações do pedido.</p>
+      </div>
+
+      <div class="order-filter">
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="PLACED"
+            checked
+            value="PLACED"
+          />
+          <span>Aguardando pagamento</span>
+        </label>
+
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="CONFIRMED"
+            value="CONFIRMED"
+          />
+          <span>Confirmados</span>
+        </label>
+
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="PREPARING"
+            value="PREPARING"
+          />
+          <span>Em preparo</span>
+        </label>
+
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="OUT_FOR_DELIVERY"
+            value="OUT_FOR_DELIVERY"
+          />
+          <span>Saiu para entrega</span>
+        </label>
+
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="DELIVERED"
+            value="DELIVERED"
+          />
+          <span>Entregue</span>
+        </label>
+
+        <label class="filter-option">
+          <input
+            class="input-filter"
+            type="radio"
+            name="order-filter"
+            id="CANCELLED"
+            value="CANCELLED"
+          />
+          <span>Cancelados</span>
+        </label>
       </div>
 
       <div class="order-list"></div>

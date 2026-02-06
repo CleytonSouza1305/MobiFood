@@ -1293,10 +1293,12 @@ input.error-cupon {
   color: var(--black-color);
 }
 
-.coupon-filter {
+.coupon-filter,
+.order-filter {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin: 20px 0;
   padding-bottom: 5px;
@@ -1681,7 +1683,56 @@ p.no-have-coupons {
 
 .order-list p.empty-orders {
   text-align: center;
-  margin-top:150px;
+  margin-top:115px;
+}
+
+.payment-selection {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  flex-direction: column;
+}
+
+.payment-selection label {
+  width: 100%;
+}
+
+.payment-selection select {
+  width: 100%;
+  border: 1px solid var(--primary-color);
+  outline: none;
+  border-radius: 6px;
+  padding: .55rem .75rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: var(--black-color);
+  color: var(--white-color);
+}
+
+.payment-selection select option {
+  cursor: pointer;
+  background-color: var(--secondary-color);
+  color: #fff;
+  border: 2px solid #000;
+}
+
+.cancel-order-content {
+  width: 100%;
+}
+
+.cancel-order-content button {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: .55rem .75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #ef4444;
+  color: #fff;
+  border-radius: 6px;
 }
 
 @keyframes animated-circle {
