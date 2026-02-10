@@ -1257,7 +1257,7 @@ async function openOrderInfo(orderNumber, token) {
         order.status === "PLACED"
           ? `<div class="order-payment">
             Efetuar pagamento 
-            <button data-paymentOrder="${order.orderNumber}">
+            <button class="payment-btn" data-paymentOrder="${order.orderNumber}">
               Pagar
             </button>
           </div>`
@@ -1267,6 +1267,47 @@ async function openOrderInfo(orderNumber, token) {
   `;
 
   content.classList.add("open");
+
+  const paymentButtons = document.querySelectorAll(".payment-btn")
+  paymentButtons.forEach((btn) => {
+    btn.addEventListener('click', async (ev) => {
+      const user = await me(token)
+      if (!user) {
+        messageAnimated(
+            `Erro ao pagar pedido, tente novamente mais tarde.`,
+            2000,
+            "top",
+            "right",
+            "12px",
+            "rgb(198, 48, 48)",
+            "#fff",
+            "500",
+          );
+        return
+      }
+
+      if (user.paymentMethods.length < 1) {
+        messageAnimated(
+            `Erro ao pagar pedido, é necessário definir um método de pagamento padrão.`,
+            2000,
+            "top",
+            "right",
+            "12px",
+            "rgb(198, 48, 48)",
+            "#fff",
+            "500",
+          );
+        return
+      }
+
+      const button = ev.target
+      const orderNumber = button.dataset.paymentorder
+    })
+  })
+}
+
+async function payOrder(orderNumber, paymentMethod, cardDetails, token) {
+  
 }
 
 async function openOrderModal(token, userId) {
